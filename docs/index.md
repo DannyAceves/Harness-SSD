@@ -49,6 +49,10 @@ Consultar solo cuando aplique al trabajo:
 Las aprobaciones de SPEC-001 a SPEC-006 que dependen del chat se tratan como
 legado no verificable, sin cambiar sus validaciones.
 
+- `specs/010-validation-gates/validation.md` — gates finales, estados de tarea y adopción completa validados.
+- `specs/010-validation-gates/decisions.json` — aprobaciones de SPEC, PLAN y TASKS.
+- `specs/009-spec-docs-concision/validation.md` — `.spec` resumido y validado.
+- `specs/009-spec-docs-concision/decisions.json` — aprobaciones de SPEC, PLAN y TASKS.
 - `specs/001-audit-task-management/validation.md` — feature de prueba validada.
 - `specs/001-audit-task-management/evidence/` — evidencia funcional y adversa.
 - `specs/002-agent-operating-readiness/validation.md` — AGENTS compacto, subagentes y hooks.

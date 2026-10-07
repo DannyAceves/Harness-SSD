@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "events": [
+    {
+      "id": "DECISION-001",
+      "kind": "APPROVAL",
+      "actor": "Usuario responsable del proyecto",
+      "date": "2026-10-07",
+      "decision": "Aprobada SPEC-009 v0.1.0",
+      "scope": "Optimizar los 15 Markdown de .spec según los requisitos y límites de SPEC-009 v0.1.0; autoriza preparar PLAN",
+      "artifact": "specs/009-spec-docs-concision/spec.md",
+      "artifact_sha256": "40a4e1f049f3f9769d2785748d18c5fe21ba07b1ef91bf54a5e921e84266c43f",
+      "source": "Aprobación humana explícita recibida como 'Aprobado' en respuesta a la solicitud de aprobación de SPEC-009"
+    },
+    {
+      "id": "DECISION-002",
+      "kind": "APPROVAL",
+      "actor": "Usuario responsable del proyecto",
+      "date": "2026-10-07",
+      "decision": "Aprobado PLAN-009 v0.1.0",
+      "scope": "Plan documental de SPEC-009 v0.1.0; autoriza preparar TASKS-009, no implementar",
+      "artifact": "specs/009-spec-docs-concision/plan.md",
+      "artifact_sha256": "e731f5ab674d9a579ecc9dbffd4e8d287df58fd4e26cffc6c5327468f6e5aacc",
+      "source": "Aprobación humana explícita recibida como 'Aprobado' en respuesta a la solicitud de aprobación de PLAN-009 v0.1.0"
+    },
+    {
+      "id": "DECISION-003",
+      "kind": "APPROVAL",
+      "actor": "Usuario responsable del proyecto",
+      "date": "2026-10-07",
+      "decision": "Aprobadas TASKS-009 v0.1.0",
+      "scope": "Ejecución de TASK-001 a TASK-011 para optimizar los 15 Markdown de .spec conforme a SPEC-009 y PLAN-009 aprobados",
+      "artifact": "specs/009-spec-docs-concision/tasks.md",
+      "artifact_sha256": "84f4bf46ec215130f143c78579aec205c3aba0a5d693ba50f61ec0582bd78ead",
+      "source": "Aprobación humana explícita recibida como 'Aprobadas las tareas' en respuesta a la solicitud de aprobación de TASKS-009 v0.1.0"
+    },
+    {
+      "id": "DECISION-004",
+      "kind": "APPROVAL",
+      "actor": "Usuario responsable del proyecto",
+      "date": "2026-10-07",
+      "decision": "Aprobada corrección de estados en TASKS-009",
+      "scope": "Aplicar exactamente el diff task-007-proposal.diff: once fichas DONE en líneas independientes y referencia de ledger actualizada; no cambia alcance, dependencias ni pruebas de TASKS-009. Autoriza revalidar SPEC-009",
+      "artifact": "specs/009-spec-docs-concision/tasks.md",
+      "artifact_sha256": "167668f1716df1c015a39e9586296870156726f27853199b49d77ed82f8b9984",
+      "source": "Aprobación humana explícita recibida como 'Sí, apruebo esa corrección' para el diff exacto de TASKS-009 propuesto en SPEC-010 TASK-007",
+      "supersedes": "DECISION-003"
+    }
+  ]
+}

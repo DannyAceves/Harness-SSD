@@ -1,489 +1,120 @@
 # Estándar de Pruebas
 
-**Versión:** 1.0.0  
+**Versión:** 1.0.0
 **Estado:** Activo
 
 ## Propósito
 
-Este documento define los estándares generales para diseñar,
-implementar y ejecutar pruebas dentro del repositorio.
-
-El objetivo de las pruebas no es únicamente detectar errores,
-sino proporcionar evidencia verificable de que la implementación
-cumple con los requisitos y criterios de aceptación definidos
-en las especificaciones.
-
----
+Las pruebas aportan evidencia verificable de requisitos y criterios de aceptación (AC), además de detectar errores.
 
 # 1. Las pruebas derivan de requisitos
 
-Las pruebas deberán estar relacionadas con comportamientos,
-requisitos, criterios de aceptación o riesgos identificados.
-
-La relación esperada es:
-
-Requisito
-→ Criterio de aceptación
-→ Implementación
-→ Prueba
-→ Evidencia
-
-No deberán crearse pruebas únicamente para aumentar métricas
-de cobertura.
-
----
+Relacionar cada prueba con comportamiento, requisito, AC o riesgo identificado: requisito → AC → implementación → prueba → evidencia. No crear pruebas solo para subir cobertura.
 
 # 2. Trazabilidad
 
-Los requisitos críticos deberán poder relacionarse con una o más
-pruebas.
-
-Ejemplo:
-
-FR-001 — El usuario puede iniciar sesión.
-
-AC-001 — Credenciales válidas permiten acceso.
-AC-002 — Credenciales inválidas son rechazadas.
-
-Pruebas:
-
-TEST-001 → AC-001
-TEST-002 → AC-002
-
----
+Relacionar requisitos críticos con una o más pruebas identificables (`TEST-[XXX]`) y sus AC. Debe poder recuperarse la cadena de evidencia.
 
 # 3. Tipos de pruebas
 
-El proyecto podrá utilizar diferentes niveles de pruebas según
-sus necesidades.
+Elegir niveles según PLAN; no todos son obligatorios para cada proyecto.
 
 ## Unitarias
 
-Verifican unidades pequeñas de comportamiento de manera aislada.
-
-Ejemplos:
-
-- funciones;
-- servicios;
-- reglas de negocio;
-- validadores;
-- transformaciones.
+Verifican unidades pequeñas aisladas, como reglas, servicios, validadores o transformaciones.
 
 ## Integración
 
-Verifican la interacción entre componentes.
-
-Ejemplos:
-
-- servicio + base de datos;
-- API + servicio;
-- repositorio + base de datos;
-- integración con infraestructura.
+Verifican interacción entre componentes, por ejemplo API, servicio, repositorio o BD.
 
 ## End-to-End
 
-Verifican flujos completos desde la perspectiva del usuario
-o consumidor del sistema.
-
-Ejemplos:
-
-Usuario
-→ API
-→ lógica
-→ base de datos
-→ respuesta
+Verifican un flujo completo desde la perspectiva de usuario o consumidor.
 
 ## Contract Tests
 
-Cuando existan contratos entre sistemas o componentes, podrán
-utilizarse pruebas específicas para verificar dichos contratos.
-
-No todos los proyectos necesitan todos los tipos de pruebas.
-
-El plan técnico deberá determinar cuáles son necesarios.
-
----
+Verifican contratos entre componentes o sistemas cuando existan y sea útil.
 
 # 4. Casos positivos y negativos
 
-Cuando corresponda, las pruebas deberán cubrir:
-
-- comportamiento esperado;
-- entradas inválidas;
-- límites;
-- errores esperados;
-- permisos;
-- estados no permitidos.
-
-Ejemplo:
-
-Para:
-
-FR-005 — Crear una tarea.
-
-No basta con probar:
-
-✓ tarea válida → creada
-
-También podrán ser relevantes:
-
-✗ título vacío
-✗ proyecto inexistente
-✗ usuario sin permisos
-✗ datos inválidos
-
-La cobertura deberá derivarse del comportamiento especificado.
-
----
+Derivar de SPEC casos válidos, entradas inválidas, límites, errores, permisos y estados prohibidos cuando correspondan. Una ruta feliz sola no demuestra escenarios exigidos.
 
 # 5. Pruebas deterministas
 
-Las pruebas deberán producir resultados consistentes.
-
-Se deberán evitar dependencias innecesarias de:
-
-- tiempo real;
-- servicios externos;
-- datos externos cambiantes;
-- orden de ejecución;
-- estado global;
-- aleatoriedad no controlada.
-
-Cuando estos elementos sean necesarios deberán controlarse
-o aislarse adecuadamente.
-
----
+Controlar tiempo, aleatoriedad, orden, estado global y servicios o datos externos cambiantes para obtener resultados reproducibles.
 
 # 6. Independencia
 
-Una prueba no deberá depender innecesariamente de la ejecución
-previa de otra prueba.
-
-Cada prueba deberá preparar el estado que necesita y limpiar
-sus efectos cuando corresponda.
-
----
+Evitar depender de otra prueba; preparar el estado requerido y limpiar efectos cuando proceda.
 
 # 7. Datos de prueba
 
-Los datos utilizados deberán ser:
-
-- explícitos;
-- comprensibles;
-- mínimos;
-- reproducibles.
-
-No deberán utilizarse secretos ni datos personales reales
-cuando no sean estrictamente necesarios.
-
-Cuando una prueba requiera utilizar credenciales o secretos reales para
-interactuar con un entorno o integración autorizados, estos deberán
-suministrarse mediante los mecanismos seguros definidos para dicho
-entorno.
-
-La necesidad de utilizar un secreto no autoriza almacenarlo o
-incorporarlo directamente en:
-
-- código de pruebas;
-- fixtures;
-- archivos versionados;
-- resultados de pruebas;
-- logs;
-- documentación.
-
-El manejo de secretos deberá cumplir con el Estándar de Seguridad.
-
----
+Usar datos explícitos, mínimos y reproducibles. Evitar datos personales y secretos reales salvo necesidad estricta. Si una prueba autorizada necesita secretos, suministrarlos por mecanismos seguros del entorno; nunca guardarlos en pruebas, fixtures, archivos versionados, resultados, logs o documentación. Aplicar el standard de seguridad.
 
 # 8. Pruebas de regresión
 
-Cuando se corrija un defecto reproducible y automatizable deberá
-agregarse o ajustar primero una prueba que demuestre el fallo por el
-comportamiento incorrecto, conforme a la política TDD de la sección 21.
-
-El objetivo es evitar que el mismo defecto vuelva a introducirse.
-
-Flujo recomendado:
-
-Bug
- ↓
-Prueba que reproduce el bug
- ↓
-Prueba falla
- ↓
-Corrección
- ↓
-Prueba pasa
- ↓
-Regression suite
-
----
+Para un defecto reproducible y automatizable, crear o ajustar primero la prueba que falle por ese defecto, según §21; corregirlo, obtener PASS y ejecutar regresión relevante.
 
 # 9. Las pruebas no se modifican para ocultar errores
 
-Si una prueba derivada correctamente de la especificación falla,
-la implementación deberá considerarse incorrecta hasta demostrar
-lo contrario.
-
-Está prohibido:
-
-- eliminar la prueba para conseguir éxito;
-- deshabilitarla sin justificación;
-- reducir sus assertions para permitir una implementación incorrecta;
-- modificar datos esperados únicamente para hacer pasar el test.
-
-Si se determina que la prueba contradice la especificación,
-la discrepancia deberá documentarse y resolverse explícitamente.
-
----
+Si una prueba correcta falla, tratar implementación como incorrecta hasta demostrar lo contrario. No eliminar, saltar, debilitar aserciones ni cambiar expectativas para aceptar código erróneo. Documentar y resolver explícitamente si la prueba contradice SPEC.
 
 # 10. Prohibido ignorar pruebas fallidas
 
-Una tarea no podrá marcarse como completada cuando existan pruebas
-relevantes fallidas.
-
-Una prueba fallida deberá clasificarse como:
-
-1. defecto de implementación;
-2. defecto de prueba;
-3. problema de infraestructura;
-4. discrepancia con la especificación;
-5. comportamiento aún no implementado.
-
-La causa deberá resolverse o documentarse como bloqueante.
-
----
+No cerrar una TASK con pruebas relevantes en FAIL. Clasificar causa: implementación, prueba, infraestructura, discrepancia con SPEC o comportamiento pendiente; resolver o registrar bloqueo.
 
 # 11. Tests skipped
 
-Las pruebas marcadas como:
-
-skip
-disabled
-pending
-todo
-
-no deberán considerarse evidencia de cumplimiento.
-
-Si una prueba necesaria está deshabilitada, el requisito asociado
-no podrá considerarse completamente validado.
-
----
+`skip`, `disabled`, `pending` y `todo` no son evidencia de PASS. Un requisito con prueba necesaria deshabilitada no está completamente validado.
 
 # 12. Mocks y test doubles
 
-Mocks, stubs, fakes y otras técnicas de aislamiento podrán utilizarse
-cuando mejoren la calidad o velocidad de las pruebas.
-
-No deberán utilizarse de forma que la prueba deje de representar
-el comportamiento relevante.
-
-Los límites externos son candidatos naturales para aislamiento.
-
-Ejemplos:
-
-- APIs externas;
-- correo;
-- pagos;
-- almacenamiento externo;
-- servicios de terceros.
-
----
+Mocks, stubs y fakes pueden aislar límites externos y acelerar pruebas; no deben sustituir el comportamiento relevante por una simulación irrelevante.
 
 # 13. Pruebas de integración reales
 
-Cuando un requisito dependa de comportamiento específico de una
-tecnología o integración, deberán considerarse pruebas de integración
-contra una implementación suficientemente representativa.
-
-Un mock exitoso no demuestra necesariamente que una integración
-real funcione.
-
----
+Si un requisito depende de tecnología o integración específica, considerar pruebas con implementación suficientemente representativa. Un mock en PASS no demuestra funcionamiento real.
 
 # 14. Cobertura
 
-La cobertura de código podrá utilizarse como indicador auxiliar.
-
-No deberá interpretarse automáticamente como evidencia de calidad.
-
-Un proyecto con alta cobertura puede seguir teniendo requisitos
-sin validar.
-
-La prioridad será:
-
-Cumplimiento de requisitos
-> calidad de pruebas
-> cobertura numérica
-
-Los porcentajes mínimos, si fueran necesarios, deberán definirse
-según las características del proyecto.
-
----
+La cobertura de código es auxiliar, no prueba de calidad. Priorizar requisitos cumplidos, pruebas útiles y luego porcentaje. Definir umbrales según el proyecto si se necesitan.
 
 # 15. Nombres de pruebas
 
-Los nombres deberán expresar claramente el comportamiento esperado.
-
-Preferible:
-
-rechaza_login_cuando_password_es_incorrecto
-
-o:
-
-shouldRejectLoginWhenPasswordIsInvalid
-
-Evitar nombres genéricos como:
-
-test1
-testFunction
-works
-check
-
----
+Nombrar el comportamiento esperado; evitar `test1`, `works` y similares.
 
 # 16. Evidencia de validación
 
-La ejecución exitosa de pruebas deberá poder utilizarse como evidencia
-durante la fase de validación.
-
-La evidencia podrá incluir:
-
-- nombre de la prueba;
-- requisito relacionado;
-- criterio de aceptación relacionado;
-- resultado;
-- comando ejecutado;
-- fecha cuando sea relevante.
-
----
+Registrar prueba, requisito/AC, comando, resultado y fecha cuando sea relevante para permitir la validación posterior.
 
 # 17. Matriz de trazabilidad
 
-Cuando la complejidad de la funcionalidad lo justifique deberá poder
-construirse una matriz similar a:
-
-| Requisito | Criterio | Tarea | Prueba | Estado |
-|-----------|----------|-------|--------|--------|
-| FR-001 | AC-001 | TASK-001 | TEST-001 | PASS |
-| FR-001 | AC-002 | TASK-002 | TEST-002 | PASS |
-| FR-002 | AC-003 | TASK-003 | TEST-003 | FAIL |
-
-Esta matriz permitirá identificar requisitos sin evidencia suficiente.
-
----
+Cuando la complejidad lo justifique, mapear requisito → AC → TASK → TEST → estado para detectar requisitos sin evidencia.
 
 # 18. Estado de una prueba
 
-Los resultados deberán clasificarse mediante estados explícitos.
-
-Estados recomendados:
-
-PASS
-FAIL
-BLOCKED
-NOT_RUN
-
-Cuando corresponda también podrá utilizarse:
-
-NOT_APPLICABLE
-
-Un estado desconocido no deberá interpretarse como PASS.
-
----
+Usar `PASS`, `FAIL`, `BLOCKED`, `NOT_RUN` y, cuando aplique, `NOT_APPLICABLE`. Un estado desconocido nunca equivale a PASS.
 
 # 19. Validación manual
 
-Algunos criterios pueden requerir validación manual.
-
-Ejemplos:
-
-- comportamiento visual;
-- accesibilidad;
-- experiencia de usuario;
-- dispositivos físicos;
-- procesos humanos.
-
-La validación manual deberá documentar:
-
-- qué se verificó;
-- cómo se verificó;
-- resultado;
-- criterio de aceptación asociado.
-
-La validación manual no deberá utilizarse como sustituto de una
-prueba automatizable sin una razón válida.
-
----
+Documentar qué se verificó, cómo, resultado y AC para criterios manuales (por ejemplo visuales, accesibilidad, dispositivos o procesos humanos). No sustituir pruebas automatizables sin razón válida.
 
 # 20. Finalización
 
-Una funcionalidad no podrá considerarse completamente validada
-mientras exista un requisito obligatorio sin evidencia suficiente.
-
-El hecho de que:
-
-- compile;
-- inicie;
-- no produzca errores inmediatos;
-- o pase algunas pruebas;
-
-no implica por sí mismo cumplimiento de la especificación.
-
----
+Una feature no está completamente validada con requisitos obligatorios sin evidencia suficiente. Compilar, iniciar o pasar algunas pruebas no demuestra conformidad con SPEC.
 
 # 21. Test-Driven Development
 
-TDD es obligatorio para cambios nuevos de comportamiento que puedan probarse
-automáticamente, incluidas correcciones de defectos reproducibles. PLAN y
-TASKS preparan los casos trazados a requisitos y criterios de aceptación;
-el código de prueba se modifica solo durante `/implement`, después de aprobar
-SPEC, PLAN y TASKS.
+TDD es obligatorio prospectivamente para comportamiento nuevo automatizable, incluidos defectos reproducibles. PLAN y TASKS preparan casos trazados; solo `/implement`, tras aprobar SPEC, PLAN y TASKS, modifica pruebas.
 
-Para cada caso aplicable:
+1. **RED:** escribir o ajustar el caso y ejecutarlo antes de cambiar código productivo. Debe fallar por el comportamiento faltante o incorrecto de la tarea.
+2. **GREEN:** aplicar el cambio mínimo y ejecutar el caso y pruebas relevantes hasta PASS.
+3. **REFACTOR:** mejorar solo cuando sea útil, conservando PASS; no se exige refactor sin motivo.
 
-1. RED: escribir o ajustar una prueba de comportamiento y ejecutarla antes de
-   cambiar el código productivo. Debe fallar por el comportamiento faltante o
-   incorrecto que la tarea pretende resolver.
-2. GREEN: hacer el cambio mínimo para que esa prueba pase y ejecutar las
-   pruebas relevantes.
-3. REFACTOR: mejorar la implementación cuando sea necesario, manteniendo las
-   pruebas en verde. No se exige refactorizar si no hay mejora justificada.
+Por TASK registrar TEST y requisito/AC, comando y causa del RED, comando y resultado GREEN, y resultado posterior al refactor si lo hubo. Guardar detalle en `specs/<feature-id>/evidence/` y enlazarlo desde TASKS y validación. Una prueba ya verde exige revisar el caso; no fabricar RED. Fallas de sintaxis, configuración, dependencias o infraestructura no son RED válido.
 
-Registrar por tarea la prueba y su relación con el requisito o criterio, el
-comando y resultado RED con causa, el comando y resultado GREEN, y el resultado
-posterior a refactorización cuando la hubo. Guardar detalle bajo
-`specs/<feature-id>/evidence/` y enlazarlo desde TASKS y validación. No
-fabricar un RED ni contar como RED válido una falla de sintaxis, configuración,
-dependencia o infraestructura. Si la prueba ya pasa antes del cambio, revisar
-el caso para identificar el comportamiento realmente faltante.
-
-Documentación, validación exclusivamente manual y refactors sin comportamiento
-nuevo requieren motivo explícito y verificación alternativa. La preferencia
-por omitir TDD no es una excepción. Si el comportamiento es automatizable pero
-el entorno impide ejecutar la prueba requerida, la tarea queda BLOCKED hasta
-resolverlo; la excepción no permite declarar PASS. `/validate` comprueba la
-evidencia RED/GREEN o la justificación y verificación alternativa antes de
-marcar cumplimiento.
-
-La política aplica prospectivamente. No se reescribe evidencia de features ya
-validadas ni se inventan ciclos TDD históricos.
-
----
+Documentación, validación exclusivamente manual y refactor sin conducta nueva requieren motivo y verificación alternativa. Preferir omitir TDD no es excepción. Si el caso es automatizable pero el entorno impide ejecutarlo, la TASK queda `BLOCKED` hasta resolverlo, sin declarar PASS. `/validate` comprueba RED/GREEN o justificación y alternativa. No reescribir evidencia histórica ni inventar ciclos TDD retrospectivos.
 
 # Checklist de pruebas
 
-Antes de considerar validada una funcionalidad deberá verificarse:
-
-- [ ] Los requisitos críticos tienen pruebas o validación correspondiente.
-- [ ] Los criterios de aceptación relevantes están cubiertos.
-- [ ] Existen casos positivos y negativos cuando corresponde.
-- [ ] Las pruebas son reproducibles.
-- [ ] Las pruebas relevantes son independientes.
-- [ ] No existen pruebas requeridas deshabilitadas.
-- [ ] No existen pruebas relevantes fallidas.
-- [ ] Las integraciones importantes fueron verificadas adecuadamente.
-- [ ] Los bugs corregidos tienen pruebas de regresión cuando corresponde.
-- [ ] Los cambios de comportamiento automatizable tienen evidencia TDD RED/GREEN, o un bloqueo registrado.
-- [ ] Los cambios fuera de TDD tienen motivo y verificación alternativa documentados.
-- [ ] La evidencia de validación puede relacionarse con los requisitos.
+Antes de validar, confirmar: requisitos críticos y AC cubiertos; casos positivos/negativos pertinentes; pruebas reproducibles e independientes; ninguna requerida deshabilitada o fallida; integraciones y regresiones comprobadas; evidencia TDD válida o bloqueo; y validación manual motivada cuando aplique.

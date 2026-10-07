@@ -95,6 +95,21 @@ handoff. `docs/index.md` debe enlazar los artefactos activos y la validacion
 de cada feature validada. `INVALID_HANDOFF`, `STALE_HANDOFF` y `STALE_INDEX`
 son FAIL; actualizar estas proyecciones durante cada fase.
 
+Una feature solo se proyecta `VALIDATED` si el checker confirma SPEC/PLAN
+`APPROVED`, TASKS `COMPLETED`, cada ficha TASK `DONE` y coincidente con su
+fila de orden, reporte final PASS y AC/TASK/TEST requeridos con resultado y
+evidencia local existente. `projected_state()` y el audit usan el mismo gate.
+Esta comprobación es estructural; `/validate` sigue revisando calidad y
+cumplimiento real. Los reportes históricos usan variantes de tablas que el
+checker interpreta sin atribuirles aprobaciones nuevas.
+
+El estado operativo está en la línea independiente `**Estado:**` de cada
+`## TASK-[XXX]`; la tabla de orden es su espejo. Cambiar solo esos estados
+individuales y la tabla no altera el trabajo autorizado cuando su formato
+ya estaba normalizado por la huella. Un formato combinado no se normaliza.
+La corrección de TASKS-009 exige aprobación humana específica de la versión
+corregida, supersesión de DECISION-003 y nueva validación de SPEC-009.
+
 ## Legado y transicion
 
 SPEC-001 a SPEC-006 conservan sus estados y validaciones, pero las

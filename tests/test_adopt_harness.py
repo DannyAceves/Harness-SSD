@@ -11,7 +11,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from adopt_harness import BASE_FILES, adopt, reusable_files
-from check_harness_state import audit_repository, canonical_bytes
+from check_harness_state import audit_repository, canonical_bytes, projected_state
 
 
 SOURCE = Path(__file__).resolve().parents[1]
@@ -159,6 +159,127 @@ class AdoptionTests(unittest.TestCase):
         )
         codes = {item.code for item in audit_repository(self.destination)}
         self.assertIn("MISSING_LEDGER", codes)
+
+    def test_adopted_project_completes_full_lifecycle_and_rejects_bad_closure(self):
+        adopt(SOURCE, self.destination)
+        feature = self.destination / "specs/001-first-lifecycle"
+        feature.mkdir()
+        ledger = feature / "decisions.json"
+        events = []
+
+        def save_events():
+            ledger.write_text(
+                json.dumps({"schema_version": 1, "events": events}), encoding="utf-8"
+            )
+
+        def approve(path):
+            events.append({
+                "id": f"DECISION-{len(events) + 1:03d}", "kind": "APPROVAL",
+                "actor": "Synthetic test fixture", "date": "2026-10-07",
+                "decision": f"Synthetic approval for {path.name}",
+                "scope": "Only this temporary lifecycle test",
+                "artifact": path.relative_to(self.destination).as_posix(),
+                "artifact_sha256": hashlib.sha256(canonical_bytes(path)).hexdigest(),
+                "source": "Automated fixture; no human approval claimed",
+            })
+            save_events()
+
+        def sync_projection():
+            state, links = projected_state(self.destination)
+            (self.destination / "handoff.md").write_text(
+                "# Test handoff\n```json harness-state\n"
+                + json.dumps(state) + "\n```\n", encoding="utf-8",
+            )
+            (self.destination / "docs/index.md").write_text(
+                "# Test index\n" + "".join(f"- `{link}`\n" for link in sorted(links)),
+                encoding="utf-8",
+            )
+
+        def check(expected_code=0, issue=None):
+            result = subprocess.run(
+                [sys.executable, "src/check_harness_state.py"],
+                cwd=self.destination, capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(result.returncode, expected_code, result.stdout + result.stderr)
+            if issue:
+                self.assertIn(issue, result.stdout)
+
+        spec = feature / "spec.md"
+        spec.write_text(
+            "# Spec\n**Estado:** DRAFT\n## AC-001 — Observable\nExpected.\n",
+            encoding="utf-8",
+        )
+        save_events()
+        sync_projection()
+        check()
+        spec.write_text(spec.read_text().replace("DRAFT", "APPROVED"), encoding="utf-8")
+        approve(spec)
+        sync_projection()
+        check()
+
+        plan = feature / "plan.md"
+        plan.write_text("# Plan\n**Estado:** DRAFT\n", encoding="utf-8")
+        sync_projection()
+        check()
+        plan.write_text("# Plan\n**Estado:** APPROVED\n", encoding="utf-8")
+        approve(plan)
+        sync_projection()
+        check()
+
+        tasks = feature / "tasks.md"
+        tasks.write_text(
+            "# Tasks\n**Estado:** DRAFT\n"
+            "## TASK-001 — Work\n**Estado:** TODO\n"
+            "**TEST-001:** Verify AC-001.\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | TODO |\n",
+            encoding="utf-8",
+        )
+        sync_projection()
+        check()
+        tasks.write_text(tasks.read_text().replace("**Estado:** DRAFT", "**Estado:** APPROVED"), encoding="utf-8")
+        approve(tasks)
+        sync_projection()
+        check()
+        tasks.write_text(
+            tasks.read_text().replace("**Estado:** APPROVED", "**Estado:** IN_PROGRESS")
+            .replace("**Estado:** TODO", "**Estado:** IN_PROGRESS")
+            .replace("| TASK-001 | TODO |", "| TASK-001 | IN_PROGRESS |"),
+            encoding="utf-8",
+        )
+        sync_projection()
+        check()
+
+        evidence = feature / "evidence"
+        evidence.mkdir()
+        (evidence / "result.md").write_text("Synthetic observed result\n", encoding="utf-8")
+        validation = feature / "validation.md"
+        validation.write_text(
+            "**Result:** PASS\n"
+            "| AC | Evidence | Result |\n| AC-001 | TEST-001; `evidence/result.md` | PASS |\n"
+            "| TASK | Evidence | Result |\n| TASK-001 | `evidence/result.md` | PASS |\n"
+            "| TEST | Evidence | Result |\n| TEST-001 | `evidence/result.md` | PASS |\n"
+            "**SPEC Compliance:** PASS\n**Feature Status:** VALIDATED\n",
+            encoding="utf-8",
+        )
+        sync_projection()
+        check(1, "PREMATURE_VALIDATION")
+
+        tasks.write_text(
+            tasks.read_text().replace("**Estado:** IN_PROGRESS", "**Estado:** COMPLETED", 1)
+            .replace("**Estado:** IN_PROGRESS", "**Estado:** DONE", 1)
+            .replace("| TASK-001 | IN_PROGRESS |", "| TASK-001 | DONE |"),
+            encoding="utf-8",
+        )
+        sync_projection()
+        check()
+        self.assertEqual(projected_state(self.destination)[0]["validated"], ["SPEC-001"])
+
+        tasks.write_text(
+            tasks.read_text().replace("**Estado:** DONE", "**Estado:** TODO", 1),
+            encoding="utf-8",
+        )
+        sync_projection()
+        check(1, "TASK_STATE_MISMATCH")
 
 
 if __name__ == "__main__":

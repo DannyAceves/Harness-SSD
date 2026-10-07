@@ -1,0 +1,120 @@
+--- a/specs/009-spec-docs-concision/tasks.md
++++ b/specs/009-spec-docs-concision/tasks.md
+@@ -43,7 +43,8 @@
+ 
+ ## TASK-001 — Inventario y reglas de referencia
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P1.  
+ **Depende de:** ninguna.  
+ **Traza:** FR-001/FR-002/FR-004, NFR-001, AC-001/AC-002/AC-004,
+ DEC-001/DEC-004.  
+@@ -55,7 +56,8 @@
+ 
+ ## TASK-002 — Constitución
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P1.  
+ **Depende de:** TASK-001.  
+ **Traza:** FR-001/FR-002, NFR-001, AC-001/AC-002, DEC-001/DEC-002.  
+ **Alcance:** modificar solo `.spec/constitution.md`; preservar artículos,
+@@ -65,7 +67,8 @@
+ 
+ ## TASK-003 — Standards de arquitectura y código
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P1.  
+ **Depende de:** TASK-002.  
+ **Traza:** FR-001/FR-002/FR-003, NFR-001/002, AC-001/002/003,
+ DEC-001/DEC-002.  
+@@ -76,7 +79,8 @@
+ 
+ ## TASK-004 — Standards de pruebas y seguridad
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P1.  
+ **Depende de:** TASK-002.  
+ **Traza:** FR-001/FR-002/FR-003/FR-004, NFR-001/002, AC-001/002/003/004,
+ DEC-001/DEC-002.  
+@@ -87,7 +91,8 @@
+ 
+ ## TASK-005 — Commands de especificación y aclaración
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P1.  
+ **Depende de:** TASK-003, TASK-004.  
+ **Traza:** FR-001/FR-002/FR-003, NFR-001/002, AC-001/002/003,
+ DEC-001/DEC-002.  
+@@ -99,7 +104,8 @@
+ 
+ ## TASK-006 — Commands de planificación y tareas
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P1.  
+ **Depende de:** TASK-003, TASK-004.  
+ **Traza:** FR-001/FR-002/FR-003, NFR-001/002, AC-001/002/003,
+ DEC-001/DEC-002.  
+@@ -110,7 +116,8 @@
+ 
+ ## TASK-007 — Command de implementación
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P1.  
+ **Depende de:** TASK-003, TASK-004.  
+ **Traza:** FR-001/FR-002/FR-003/FR-004, NFR-001/002, AC-001/002/003/004,
+ DEC-001/DEC-002.  
+@@ -122,7 +129,8 @@
+ 
+ ## TASK-008 — Command de validación
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P1.  
+ **Depende de:** TASK-003, TASK-004.  
+ **Traza:** FR-001/FR-002/FR-003, NFR-001/002, AC-001/002/003,
+ DEC-001/DEC-002.  
+@@ -133,7 +141,8 @@
+ 
+ ## TASK-009 — Templates de SPEC y PLAN
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P2.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P2.  
+ **Depende de:** TASK-005, TASK-006.  
+ **Traza:** FR-001/FR-003/FR-004, NFR-001/002, AC-001/003/004,
+ DEC-001/DEC-003.  
+@@ -144,7 +153,8 @@
+ 
+ ## TASK-010 — Templates de TASKS y validación
+ 
+-**Estado:** TODO. **Tipo:** DOCUMENTATION. **Prioridad:** P2.  
++**Estado:** DONE  
++**Tipo:** DOCUMENTATION. **Prioridad:** P2.  
+ **Depende de:** TASK-006, TASK-007, TASK-008.  
+ **Traza:** FR-001/FR-002/FR-003/FR-004, NFR-001/002,
+ AC-001/002/003/004, DEC-001/DEC-003.  
+@@ -155,7 +165,8 @@
+ 
+ ## TASK-011 — Integración y verificación final de edición
+ 
+-**Estado:** TODO. **Tipo:** TEST. **Prioridad:** P1.  
++**Estado:** DONE  
++**Tipo:** TEST. **Prioridad:** P1.  
+ **Depende de:** TASK-002 a TASK-010.  
+ **Traza:** FR-001/002/003/004, NFR-001/002, BR-001,
+ AC-001/002/003/004, DEC-001/002/003/004.  
+@@ -239,6 +250,6 @@
+ **Decisión explícita y alcance:** "Aprobadas las tareas" en respuesta a la
+ solicitud de aprobación de TASKS-009 v0.1.0; autoriza ejecutar TASK-001 a
+ TASK-011 conforme a sus dependencias.  
+-**Registro durable:** `decisions.json`, DECISION-003. El documento
++**Registro durable:** `decisions.json`, DECISION-004 (supersedes DECISION-003). El documento
+ pasará a `IN_PROGRESS` al iniciar TASK-001 y a `COMPLETED` solo con todas las
+ tareas `DONE` y su evidencia. `/validate` determina la validación final.

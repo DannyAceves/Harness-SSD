@@ -7,7 +7,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from check_harness_state import audit_repository, canonical_bytes
+from check_harness_state import audit_repository, canonical_bytes, projected_state
 
 
 class HarnessStateTests(unittest.TestCase):
@@ -61,6 +61,37 @@ class HarnessStateTests(unittest.TestCase):
 
     def _codes(self):
         return {issue.code for issue in audit_repository(self.root)}
+
+    def _closed_feature(self, report=None):
+        self.spec.write_text(
+            "# Feature\n**Estado:** APPROVED\n## AC-001 — Check\nExpected.\n",
+            encoding="utf-8",
+        )
+        (self.feature / "plan.md").write_text(
+            "# Plan\n**Estado:** APPROVED\n", encoding="utf-8"
+        )
+        (self.feature / "tasks.md").write_text(
+            "# Tasks\n**Estado:** COMPLETED\n"
+            "## TASK-001 — Work\n**Estado:** DONE\n"
+            "**TEST-001:** Verify AC-001.\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | DONE |\n",
+            encoding="utf-8",
+        )
+        evidence = self.feature / "evidence"
+        evidence.mkdir()
+        (evidence / "result.md").write_text("Synthetic evidence\n", encoding="utf-8")
+        (self.feature / "validation.md").write_text(
+            report or (
+                "**Result:** PASS\n"
+                "| AC | Verification | Result |\n"
+                "| AC-001 | TEST-001; `evidence/result.md` | PASS |\n"
+                "| TASK | Evidence | Result |\n"
+                "| TASK-001 | `evidence/result.md` | PASS |\n"
+                "| TEST | Evidence | Result |\n"
+                "| TEST-001 | `evidence/result.md` | PASS |\n"
+                "**SPEC Compliance:** PASS\n**Feature Status:** VALIDATED\n"
+            ), encoding="utf-8",
+        )
 
     def test_valid_approval_is_self_contained(self):
         self.assertEqual(self._codes(), set())
@@ -185,6 +216,204 @@ class HarnessStateTests(unittest.TestCase):
         )
         self.assertIn("INVALID_STATE", self._codes())
 
+    def test_task_card_and_order_row_must_agree(self):
+        tasks = self.feature / "tasks.md"
+        tasks.write_text(
+            "# Tasks\n**Estado:** DRAFT\n"
+            "## TASK-001 — Work\n**Estado:** TODO\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | DONE |\n",
+            encoding="utf-8",
+        )
+        issues = audit_repository(self.root)
+        self.assertIn("TASK_STATE_MISMATCH", {issue.code for issue in issues})
+        self.assertTrue(any("TASK-001" in issue.detail for issue in issues))
+
+    def test_duplicate_or_missing_task_order_row_fails(self):
+        tasks = self.feature / "tasks.md"
+        tasks.write_text(
+            "# Tasks\n**Estado:** DRAFT\n"
+            "## TASK-001 — Work\n**Estado:** TODO\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | TODO |\n"
+            "| 2 | TASK-001 | TODO |\n",
+            encoding="utf-8",
+        )
+        self.assertIn("DUPLICATE_TASK_ROW", self._codes())
+        tasks.write_text(
+            tasks.read_text(encoding="utf-8").replace(
+                "| 1 | TASK-001 | TODO |\n| 2 | TASK-001 | TODO |\n", ""
+            ), encoding="utf-8",
+        )
+        self.assertIn("MISSING_TASK_ROW", self._codes())
+
+    def test_completed_tasks_document_rejects_pending_task(self):
+        tasks = self.feature / "tasks.md"
+        tasks.write_text(
+            "# Tasks\n**Estado:** COMPLETED\n"
+            "## TASK-001 — Work\n**Estado:** TODO\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | TODO |\n",
+            encoding="utf-8",
+        )
+        self.assertIn("INCOMPLETE_TASKS", self._codes())
+
+    def test_task_state_must_be_a_standalone_field(self):
+        tasks = self.feature / "tasks.md"
+        tasks.write_text(
+            "# Tasks\n**Estado:** DRAFT\n"
+            "## TASK-001 — Work\n**Estado:** TODO. **Tipo:** TEST.\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | TODO |\n",
+            encoding="utf-8",
+        )
+        self.assertIn("INVALID_TASK_FORMAT", self._codes())
+
+    def test_validated_report_cannot_close_approved_tasks(self):
+        plan = self.feature / "plan.md"
+        plan.write_text("# Plan\n**Estado:** APPROVED\n", encoding="utf-8")
+        tasks = self.feature / "tasks.md"
+        tasks.write_text(
+            "# Tasks\n**Estado:** APPROVED\n"
+            "## TASK-001 — Work\n**Estado:** TODO\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | TODO |\n",
+            encoding="utf-8",
+        )
+        (self.feature / "validation.md").write_text(
+            "**Result:** PASS\n**SPEC Compliance:** PASS\n"
+            "**Feature Status:** VALIDATED\n",
+            encoding="utf-8",
+        )
+        issues = audit_repository(self.root)
+        self.assertIn("PREMATURE_VALIDATION", {issue.code for issue in issues})
+        self.assertNotIn("SPEC-008", projected_state(self.root)[0]["validated"])
+
+    def test_validated_report_needs_final_pass_result(self):
+        plan = self.feature / "plan.md"
+        plan.write_text("# Plan\n**Estado:** APPROVED\n", encoding="utf-8")
+        tasks = self.feature / "tasks.md"
+        tasks.write_text(
+            "# Tasks\n**Estado:** COMPLETED\n"
+            "## TASK-001 — Work\n**Estado:** DONE\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | DONE |\n",
+            encoding="utf-8",
+        )
+        (self.feature / "validation.md").write_text(
+            "**Result:** BLOCKED\n**SPEC Compliance:** PASS\n"
+            "**Feature Status:** VALIDATED\n",
+            encoding="utf-8",
+        )
+        self.assertIn("INVALID_VALIDATION_RESULT", self._codes())
+        self.assertNotIn("SPEC-008", projected_state(self.root)[0]["validated"])
+
+    def test_later_blocked_result_overrides_earlier_pass(self):
+        self._closed_feature()
+        validation = self.feature / "validation.md"
+        validation.write_text(
+            validation.read_text() + "**Result:** BLOCKED\n",
+            encoding="utf-8",
+        )
+        self.assertIn("INVALID_VALIDATION_RESULT", self._codes())
+        self.assertNotIn("SPEC-008", projected_state(self.root)[0]["validated"])
+
+    def test_declared_blocking_findings_prevent_validation(self):
+        (self.feature / "plan.md").write_text(
+            "# Plan\n**Estado:** APPROVED\n", encoding="utf-8"
+        )
+        (self.feature / "tasks.md").write_text(
+            "# Tasks\n**Estado:** COMPLETED\n"
+            "## TASK-001 — Work\n**Estado:** DONE\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | DONE |\n",
+            encoding="utf-8",
+        )
+        (self.feature / "validation.md").write_text(
+            "**Result:** PASS\nBlocking findings: 1\n"
+            "**SPEC Compliance:** PASS\n**Feature Status:** VALIDATED\n",
+            encoding="utf-8",
+        )
+        self.assertIn("BLOCKING_VALIDATION_FINDING", self._codes())
+
+    def test_structural_evidence_accepts_complete_report(self):
+        self._closed_feature()
+        self.assertIn("SPEC-008", projected_state(self.root)[0]["validated"])
+        self.assertFalse({
+            issue.code for issue in audit_repository(self.root)
+        } & {"MISSING_AC_EVIDENCE", "MISSING_TASK_EVIDENCE", "MISSING_TEST_RESULT", "INVALID_EVIDENCE_PATH"})
+
+    def test_missing_ac_result_rejects_validation(self):
+        self._closed_feature()
+        validation = self.feature / "validation.md"
+        validation.write_text(
+            validation.read_text().replace(
+                "| AC-001 | TEST-001; `evidence/result.md` | PASS |\n", ""
+            ), encoding="utf-8",
+        )
+        self.assertIn("MISSING_AC_EVIDENCE", self._codes())
+        self.assertNotIn("SPEC-008", projected_state(self.root)[0]["validated"])
+
+    def test_broken_evidence_path_rejects_validation(self):
+        self._closed_feature()
+        validation = self.feature / "validation.md"
+        validation.write_text(
+            validation.read_text().replace("evidence/result.md", "evidence/missing.md"),
+            encoding="utf-8",
+        )
+        self.assertIn("INVALID_EVIDENCE_PATH", self._codes())
+
+    def test_evidence_path_cannot_escape_feature(self):
+        self._closed_feature()
+        validation = self.feature / "validation.md"
+        validation.write_text(
+            validation.read_text().replace(
+                "| AC-001 | TEST-001; `evidence/result.md` | PASS |",
+                "| AC-001 | TEST-001; `../evidence/result.md` | PASS |",
+            ), encoding="utf-8",
+        )
+        self.assertIn("INVALID_EVIDENCE_PATH", self._codes())
+
+    def test_missing_test_result_rejects_validation(self):
+        self._closed_feature()
+        validation = self.feature / "validation.md"
+        validation.write_text(
+            validation.read_text().replace(
+                "| TEST-001 | `evidence/result.md` | PASS |\n", ""
+            ), encoding="utf-8",
+        )
+        self.assertIn("MISSING_TEST_RESULT", self._codes())
+
+    def test_failed_test_row_cannot_be_counted_as_pass(self):
+        self._closed_feature()
+        validation = self.feature / "validation.md"
+        validation.write_text(
+            validation.read_text().replace(
+                "| TEST-001 | `evidence/result.md` | PASS |",
+                "| TEST-001 | PASS | FAIL |",
+            ), encoding="utf-8",
+        )
+        self.assertIn("MISSING_TEST_RESULT", self._codes())
+
+    def test_conflicting_pass_and_fail_rows_reject_validation(self):
+        self._closed_feature()
+        validation = self.feature / "validation.md"
+        validation.write_text(
+            validation.read_text()
+            + "| AC-001 | `evidence/result.md` | FAIL |\n"
+            + "| TASK-001 | `evidence/result.md` | FAIL |\n"
+            + "| TEST-001 | `evidence/result.md` | FAIL |\n",
+            encoding="utf-8",
+        )
+        codes = self._codes()
+        self.assertIn("CONFLICTING_AC_RESULT", codes)
+        self.assertIn("CONFLICTING_TASK_RESULT", codes)
+        self.assertIn("CONFLICTING_TEST_RESULT", codes)
+        self.assertNotIn("SPEC-008", projected_state(self.root)[0]["validated"])
+
+    def test_missing_task_evidence_rejects_validation(self):
+        self._closed_feature()
+        validation = self.feature / "validation.md"
+        validation.write_text(
+            validation.read_text().replace(
+                "| TASK-001 | `evidence/result.md` | PASS |\n", ""
+            ), encoding="utf-8",
+        )
+        self.assertIn("MISSING_TASK_EVIDENCE", self._codes())
+
     def test_legacy_is_not_promoted_to_new_approval(self):
         (self.root / "docs/audit-history.md").write_text(
             "Source audit marker\n", encoding="utf-8"
@@ -197,8 +426,21 @@ class HarnessStateTests(unittest.TestCase):
         legacy = self.root / "specs" / "006-tdd-workflow"
         legacy.mkdir()
         (legacy / "spec.md").write_text("**Estado:** APPROVED\n", encoding="utf-8")
+        (legacy / "plan.md").write_text("**Estado:** APPROVED\n", encoding="utf-8")
+        (legacy / "tasks.md").write_text(
+            "# Tasks\n**Estado:** COMPLETED\n"
+            "## TASK-001 — Work\n**Estado:** DONE\n"
+            "| Orden | Tarea | Estado |\n| 1 | TASK-001 | DONE |\n",
+            encoding="utf-8",
+        )
+        (legacy / "evidence").mkdir()
+        (legacy / "evidence/result.md").write_text(
+            "Synthetic legacy evidence\n", encoding="utf-8"
+        )
         (legacy / "validation.md").write_text(
-            "**SPEC COMPLIANCE:** PASS\n**FEATURE STATUS:** VALIDATED\n",
+            "**Result:** PASS\n**SPEC COMPLIANCE:** PASS\n"
+            "**FEATURE STATUS:** VALIDATED\n"
+            "`evidence/result.md`\n| TASK-001 | evidence | PASS |\n",
             encoding="utf-8",
         )
         handoff = self.root / "handoff.md"

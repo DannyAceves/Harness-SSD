@@ -2,519 +2,112 @@
 
 ## Propósito
 
-Transformar una petición, idea o necesidad expresada por el usuario
-en una especificación estructurada siguiendo los principios de
-Spec-Driven Development definidos por este repositorio.
-
-Este comando genera el artefacto:
-
-specs/<feature-id>/spec.md
-
-El comando NO implementa código.
-
----
+Convertir una petición en `specs/<feature-id>/spec.md`, según la Constitución. Describe **qué** y **por qué**; no implementa.
 
 # 1. Entradas
 
-El comando recibe una descripción proporcionada por el usuario.
-
-Ejemplo:
-
-/specify
-
-Los usuarios necesitan crear, editar y completar tareas
-dentro de un proyecto.
-
-La entrada puede ser:
-
-- una idea;
-- una funcionalidad;
-- un problema;
-- una mejora;
-- un cambio de comportamiento;
-- una necesidad de negocio;
-- una corrección que implique comportamiento nuevo.
-
----
+Una idea, problema, mejora, nueva función o cambio de comportamiento expresado por el usuario (`/specify <descripción>`).
 
 # 2. Contexto obligatorio
 
-Antes de generar la especificación deberá consultarse:
-
-1. `.spec/constitution.md`
-2. `.spec/standards/architecture.md`
-3. `.spec/standards/coding.md`
-4. `.spec/standards/testing.md`
-5. `.spec/standards/security.md`
-6. `.spec/templates/specification.template.md`
-
-Cuando exista documentación relevante del proyecto también deberá
-considerarse.
-
-La Constitución tiene precedencia sobre cualquier instrucción
-de nivel inferior.
-
----
+Leer `.spec/constitution.md`, los cuatro `.spec/standards/`, `.spec/templates/specification.template.md` y documentación relevante. Rige la precedencia constitucional.
 
 # 3. Regla principal
 
-El comando deberá describir:
-
-QUÉ necesita el sistema
-
-y:
-
-POR QUÉ lo necesita.
-
-No deberá diseñar prematuramente:
-
-- arquitectura;
-- base de datos física;
-- endpoints concretos;
-- estructura de carpetas;
-- clases;
-- frameworks;
-- librerías;
-- implementación;
-- algoritmos;
-
-salvo que alguno de estos elementos sea una restricción explícita
-proporcionada por el usuario o por el proyecto.
-
----
+Definir resultado observable y motivo. No anticipar arquitectura, BD física, endpoints, clases, framework, librerías o algoritmos salvo restricción explícita existente.
 
 # 4. Identificación de la SPEC
 
-Cada especificación deberá recibir:
-
-SPEC-[XXX]
-
-y una carpeta:
-
-specs/<feature-id>/
-
-Ejemplo:
-
-SPEC-001
-
-specs/001-task-management/
-    spec.md
-
-El identificador deberá ser único dentro del repositorio.
-
-Los identificadores existentes no deberán reutilizarse.
-
----
+Asignar `SPEC-[XXX]` único y carpeta `specs/<feature-id>/`. No reutilizar IDs.
 
 # 5. Nombre de la feature
 
-El nombre de carpeta deberá:
-
-- utilizar minúsculas;
-- utilizar guiones;
-- ser descriptivo;
-- evitar nombres excesivamente largos.
-
-Ejemplo:
-
-Correcto:
-
-001-user-authentication
-002-task-management
-003-password-recovery
-
-Evitar:
-
-001-feature
-002-new-stuff
-003-changes
-
----
+Usar `<NNN>-<slug-descriptivo>` en minúsculas y guiones; evitar nombres vagos o largos.
 
 # 6. Análisis de la petición
 
-Antes de escribir la SPEC deberá identificarse:
+Identificar problema, objetivo, actores, comportamientos, restricciones, seguridad y casos límite sin inventar requisitos.
 
 ## Problema
 
-¿Qué problema intenta resolver el usuario?
+Qué necesidad origina la petición.
 
 ## Objetivo
 
-¿Qué resultado espera obtener?
+Qué resultado se espera.
 
 ## Actores
 
-¿Quién interactúa con esta funcionalidad?
+Quién usa o recibe el comportamiento.
 
 ## Comportamientos
 
-¿Qué debe poder hacer el sistema?
+Qué debe poder hacer el sistema.
 
 ## Restricciones
 
-¿Qué límites ya fueron proporcionados?
+Qué límites ya existen.
 
 ## Seguridad
 
-¿Existen implicaciones de:
-
-- autenticación;
-- autorización;
-- datos sensibles;
-- permisos;
-- operaciones destructivas?
+Revisar autenticación, autorización, datos sensibles, permisos y operaciones destructivas.
 
 ## Casos límite
 
-¿Qué escenarios importantes podrían cambiar el comportamiento?
-
-Este análisis deberá utilizarse para construir la SPEC.
-
-No deberá utilizarse para inventar requisitos.
-
----
+Identificar escenarios que puedan cambiar el comportamiento.
 
 # 7. Detección de ambigüedad
 
-Durante la generación deberán detectarse:
-
-- requisitos incompletos;
-- comportamientos ambiguos;
-- reglas contradictorias;
-- permisos desconocidos;
-- resultados no definidos;
-- límites desconocidos;
-- decisiones de negocio faltantes.
-
-Cuando una ambigüedad pueda cambiar significativamente
-el comportamiento esperado deberá utilizarse:
-
-[NEEDS CLARIFICATION]
-
-El agente no deberá seleccionar silenciosamente una opción.
-
----
+Marcar `[NEEDS CLARIFICATION]` si falta una decisión que cambie alcance, comportamiento, permisos, seguridad, datos o AC. No elegirla en silencio.
 
 # 8. Cuándo NO utilizar NEEDS CLARIFICATION
 
-No deberá generarse una aclaración cuando la respuesta pueda
-determinarse claramente mediante:
-
-1. la petición explícita del usuario;
-2. la Constitución;
-3. los estándares;
-4. una especificación relacionada aprobada;
-5. una regla de negocio ya documentada;
-6. una restricción existente del proyecto.
-
-Tampoco deberán solicitarse aclaraciones por detalles que puedan
-resolverse posteriormente durante la planificación técnica sin
-afectar el comportamiento esperado.
-
-El objetivo es detectar ambigüedad relevante, no convertir cada
-detalle en una pregunta.
-
-
----
+Resolver con petición explícita, Constitución, standards, SPEC aprobada relacionada, regla documentada o restricción existente. Dejar los detalles puramente técnicos para PLAN.
 
 # 9. Clasificación de aclaraciones
 
-Toda aclaración deberá clasificarse como:
-
-Bloqueante: YES
-
-o:
-
-Bloqueante: NO
+Registrar ID, pregunta, contexto, impacto y `Bloqueante: YES | NO`.
 
 ## Bloqueante
 
-Utilizar cuando la respuesta pueda modificar:
-
-- comportamiento;
-- alcance;
-- permisos;
-- reglas de negocio;
-- seguridad;
-- datos importantes;
-- criterios de aceptación.
-
-Una aclaración bloqueante impide que la SPEC avance a `APPROVED`.
+Si afecta comportamiento, alcance, permisos, negocio, seguridad, datos importantes o AC; impide `APPROVED`.
 
 ## No bloqueante
 
-Utilizar cuando la respuesta pendiente no impida definir
-correctamente el comportamiento principal.
-
-Las aclaraciones no bloqueantes deberán permanecer documentadas.
-
----
+No impide definir el comportamiento principal; permanece documentada.
 
 # 10. Generación de requisitos
 
-Los requisitos deberán clasificarse cuando corresponda como:
-
-FR-[XXX]
-Functional Requirement
-
-NFR-[XXX]
-Non-Functional Requirement
-
-SEC-[XXX]
-Security Requirement
-
-BR-[XXX]
-Business Rule
-
-Los requisitos deberán ser:
-
-- explícitos;
-- verificables;
-- independientes cuando sea razonable;
-- comprensibles;
-- trazables.
-
-Evitar requisitos vagos.
-
-Incorrecto:
-
-FR-001
-El sistema deberá ser fácil de usar.
-
-Preferible:
-
-NFR-001
-El flujo principal de creación de tareas deberá poder completarse
-sin abandonar la vista del proyecto.
-
----
+Usar `FR-[XXX]`, `NFR-[XXX]`, `SEC-[XXX]` y `BR-[XXX]` cuando apliquen. Cada requisito debe ser explícito, verificable y trazable; no usar frases vagas.
 
 # 11. Generación de criterios de aceptación
 
-Los requisitos MUST deberán contar con criterios de aceptación
-suficientes para demostrar su comportamiento.
-
-Los criterios utilizarán:
-
-AC-[XXX]
-
-Formato recomendado:
-
-Given
-When
-Then
-
-Ejemplo:
-
-AC-001
-
-Relacionado con: FR-001
-
-Given
-un usuario autenticado con acceso al proyecto
-
-When
-crea una tarea con datos válidos
-
-Then
-la tarea queda disponible dentro del proyecto.
-
----
+Cubrir cada MUST con `AC-[XXX]` suficiente. Relacionarlo con requisito y, cuando ayude, formular Given/When/Then para comportamiento observable.
 
 # 12. Priorización
 
-Los requisitos deberán clasificarse mediante:
-
-MUST
-SHOULD
-COULD
-
-MUST:
-
-Necesario para considerar cumplida la funcionalidad.
-
-SHOULD:
-
-Importante, pero puede omitirse únicamente con justificación
-documentada.
-
-COULD:
-
-Opcional y no bloquea el cumplimiento principal de la SPEC.
-
-El agente no deberá utilizar prioridad para eliminar silenciosamente
-parte del alcance solicitado por el usuario.
-
----
+`MUST`: indispensable; `SHOULD`: omitible solo con justificación; `COULD`: opcional. No usar prioridad para eliminar alcance solicitado silenciosamente.
 
 # 13. Suposiciones
 
-Cuando sea necesario utilizar una suposición no bloqueante deberá
-registrarse mediante:
-
-ASM-[XXX]
-
-Las suposiciones deberán ser explícitas.
-
-Una suposición que pueda cambiar significativamente el comportamiento
-no deberá utilizarse para evitar una aclaración.
-
-En ese caso deberá utilizarse:
-
-[NEEDS CLARIFICATION]
-
----
+Registrar suposiciones no bloqueantes como `ASM-[XXX]`; si cambian significativamente conducta, abrir aclaración en vez de asumir.
 
 # 14. Creación del artefacto
 
-Una vez analizada la petición deberá:
-
-1. determinar el siguiente ID disponible;
-2. crear la carpeta de la feature;
-3. utilizar:
-
-.spec/templates/specification.template.md
-
-como estructura base;
-4. completar las secciones aplicables;
-5. registrar aclaraciones;
-6. generar la matriz inicial de trazabilidad;
-7. guardar:
-
-specs/<feature-id>/spec.md
-
-La plantilla original no deberá modificarse durante este proceso.
-
----
+Asignar ID, crear carpeta y `spec.md` con `.spec/templates/specification.template.md`; completar secciones aplicables, preguntas y matriz inicial. No modificar la template. Crear `decisions.json` con `{"schema_version": 1, "events": []}`.
 
 # 15. Self-check
 
-Antes de finalizar `/specify`, verificar:
-
-- [ ] Existe un problema claramente definido.
-- [ ] Existe un objetivo.
-- [ ] El alcance está definido.
-- [ ] El fuera de alcance está definido.
-- [ ] Los actores relevantes están identificados.
-- [ ] Los FR son verificables.
-- [ ] Los requisitos MUST tienen criterios de aceptación.
-- [ ] Los SEC relevantes fueron considerados.
-- [ ] Los principales edge cases fueron considerados.
-- [ ] Las suposiciones están visibles.
-- [ ] Las ambigüedades relevantes están marcadas.
-- [ ] No se inventaron decisiones técnicas.
-- [ ] No se agregó funcionalidad no solicitada.
-- [ ] La matriz de trazabilidad es consistente.
-
----
+Comprobar problema, objetivo, alcance/fuera de alcance, actores, FR verificables, MUST→AC, SEC, casos límite, suposiciones, ambigüedades y matriz coherente. Evitar decisiones técnicas o funciones inventadas.
 
 # 16. Estado resultante
 
-Si existen aclaraciones bloqueantes:
-
-SPEC STATUS:
-
-DRAFT
-
-RESULT:
-
-NEEDS CLARIFICATION
-
-No deberá avanzarse a PLAN.
-
----
-
-Si no existen aclaraciones bloqueantes pero todavía requiere
-revisión humana:
-
-SPEC STATUS:
-
-IN_REVIEW
-
-RESULT:
-
-READY FOR REVIEW
-
----
-
-La SPEC solamente podrá pasar a:
-
-APPROVED
-
-cuando exista aprobación humana explícita.
-
-Para features nuevas sujetas al protocolo de `docs/state-reconstruction.md`,
-registrar la decisión, alcance y huella en `decisions.json` después de la
-transición. Ejecutar `python3 src/check_harness_state.py`; un registro ausente
-o inconsistente impide avanzar a `/plan`. El legado SPEC-001 a SPEC-006 no se
-reinterpreta como aprobado por este mecanismo.
-
----
+Con aclaración bloqueante: `SPEC STATUS: DRAFT`, `RESULT: NEEDS CLARIFICATION`, sin PLAN. Sin bloqueos pero pendiente de revisión: `SPEC STATUS: IN_REVIEW`, `RESULT: READY FOR REVIEW`. Solo aprobación humana explícita cambia a `APPROVED`. Registrar decisión, alcance y huella en `decisions.json` según `docs/state-reconstruction.md`; `python3 src/check_harness_state.py` debe dar PASS antes de `/plan`. No reinterpretar legado SPEC-001 a SPEC-006.
 
 # 17. Salida del comando
 
-Al finalizar deberá reportarse:
-
-- SPEC creada;
-- ruta;
-- requisitos detectados;
-- criterios de aceptación;
-- aclaraciones;
-- estado.
-
-Formato recomendado:
-
-SDD SPECIFICATION
-────────────────────────────────
-
-SPEC:
-SPEC-001
-
-Feature:
-Task Management
-
-Path:
-specs/001-task-management/spec.md
-
-Requirements:
-FR: 5
-NFR: 1
-SEC: 2
-
-Acceptance Criteria:
-8
-
-Clarifications:
-2 blocking
-1 non-blocking
-
-Status:
-NEEDS CLARIFICATION
-
-Next:
-Run /clarify
-────────────────────────────────
-
----
+Informar ID, feature, ruta, cantidades FR/NFR/SEC y AC, aclaraciones bloqueantes/no bloqueantes, estado y siguiente fase.
 
 # 18. Acciones prohibidas
 
-Durante `/specify` el agente NO deberá:
-
-- escribir código de aplicación;
-- instalar dependencias;
-- crear migraciones;
-- modificar infraestructura;
-- crear endpoints;
-- seleccionar tecnologías sin necesidad;
-- generar `plan.md`;
-- generar `tasks.md`;
-- modificar archivos fuera de SPEC, excepto crear `decisions.json` vacio de la
-  feature, registrar decisiones humanas recibidas y actualizar solo
-  estado/enlaces en `handoff.md` y `docs/index.md`;
-- resolver silenciosamente decisiones de negocio;
-- marcar la SPEC como APPROVED por cuenta propia.
-
-El objetivo exclusivo de este comando es producir
-una especificación correcta y revisable.
+Durante `/specify`, no escribir código, instalar dependencias, migrar, crear endpoints, PLAN o TASKS, decidir negocio sin base ni autoaprobar. Modificar solo SPEC, ledger de la feature y proyecciones de estado/enlaces en `handoff.md` y `docs/index.md`; no alterar contenido sustantivo ajeno.

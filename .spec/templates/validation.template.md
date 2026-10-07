@@ -3,715 +3,296 @@
 ## Metadata
 
 **Validation ID:** VALIDATION-[XXX]
-
 **SPEC:** SPEC-[XXX]
-
 **PLAN:** PLAN-[XXX]
-
 **TASKS:** TASKS-[XXX]
-
 **Status:** DRAFT
-
 **Result:** PENDING
-
 **Date:** YYYY-MM-DD
-
 **Validated by:** [PENDING]
-
----
 
 # 1. Objetivo
 
-Validar que la implementación final cumple la especificación
-aprobada y que existe evidencia suficiente para demostrarlo.
-
-La validación deberá reconstruir la trazabilidad completa:
-
-Requirement
-→ Acceptance Criterion
-→ Plan
-→ Task
-→ Implementation
-→ Test
-→ Evidence
-
-Este documento representa el gate final de la feature.
-
----
+[Qué feature y versión se valida, contra qué SPEC y con qué evidencia. Resultado permitido: PASS, FAIL o BLOCKED.]
 
 # 2. Artefactos validados
 
 ## Specification
 
 **ID:** SPEC-[XXX]
-
 **Version:** [X.Y.Z]
-
 **Status:** APPROVED
-
-**Path:**
-
-specs/<feature-id>/spec.md
-
----
+**Path:** [spec.md]
 
 ## Plan
 
 **ID:** PLAN-[XXX]
-
 **Version:** [X.Y.Z]
-
 **Status:** APPROVED
-
-**Path:**
-
-specs/<feature-id>/plan.md
-
----
+**Path:** [plan.md]
 
 ## Tasks
 
 **ID:** TASKS-[XXX]
-
 **Version:** [X.Y.Z]
-
 **Status:** COMPLETED
-
-**Path:**
-
-specs/<feature-id>/tasks.md
-
----
+**Path:** [tasks.md]
 
 ## Implementation
 
-**Reference:**
-
-[Branch / commit / working tree / other reference]
-
----
+**Reference:** [Archivos/commit/evidence.]
 
 # 3. Precondition Check
 
-| Check | Result | Evidence |
-|---|---|---|
-| SPEC exists | PENDING | |
-| SPEC is APPROVED | PENDING | |
-| PLAN exists | PENDING | |
-| PLAN is APPROVED | PENDING | |
-| TASKS exists | PENDING | |
-| Required TASKS are DONE | PENDING | |
-| TASKS document is COMPLETED | PENDING | |
-| No blocking clarification exists | PENDING | |
-| No known blocking issue exists | PENDING | |
-| Implementation exists | PENDING | |
+| Gate | Result | Evidence |
+|------|--------|----------|
+| SPEC/PLAN aprobados, ledger y huellas vigentes | PENDING | [Checker/decisions.json] |
+| TASKS COMPLETED y TASK requeridas DONE | PENDING | [tasks.md] |
+| Sin bloqueos pendientes e implementación presente | PENDING | [Evidencia] |
 
-Allowed results:
-
-- PASS
-- FAIL
-- BLOCKED
-- NOT_APPLICABLE
-
-If a mandatory precondition cannot be satisfied:
-
-VALIDATION STATUS: BLOCKED
-
----
+El legado SPEC-001 a SPEC-006 se identifica como no verificable sin inventar aprobación. Precondición fallida → BLOCKED, no PASS.
 
 # 4. Functional Requirement Coverage
 
-| Requirement | Priority | Acceptance Criteria | Evidence | Result |
-|---|---|---|---|---|
-| FR-001 | MUST | AC-001 | TEST-001 | PENDING |
-
-Allowed results:
-
-- PASS
-- FAIL
-- BLOCKED
-- NOT_APPLICABLE
-
-Every MUST requirement shall reach PASS before final validation
-can result in PASS.
-
----
+| FR | AC | TASK/cambio | TEST/evidencia | Result |
+|----|----|-------------|----------------|--------|
+| FR-001 | AC-001 | TASK-001 | TEST-001 | PENDING |
 
 # 5. Non-Functional Requirement Coverage
 
-| Requirement | Category | Evidence | Result |
-|---|---|---|---|
-| NFR-001 | [Category] | [Evidence] | PENDING |
-
-Non-functional requirements shall use measurable or otherwise
-verifiable evidence appropriate to the requirement.
-
----
+| NFR | AC | Evidencia/métrica | Result |
+|-----|----|------------------|--------|
+| NFR-001 | AC-001 | [Medición] | PENDING |
 
 # 6. Security Requirement Coverage
 
-| Requirement | Acceptance Criteria | Evidence | Result |
-|---|---|---|---|
-| SEC-001 | AC-004 | TEST-004 | PENDING |
+| SEC | AC | Control/evidencia | Result |
+|-----|----|------------------|--------|
+| SEC-001 | AC-001 | [TEST/validación] | PENDING |
 
-Every mandatory security requirement shall have explicit evidence.
-
-A mandatory security requirement in FAIL prevents final PASS.
-
----
+Cada MUST y SEC aplicable debe estar PASS; justificar NOT_APPLICABLE.
 
 # 7. Acceptance Criteria Validation
 
+Registrar una fila por AC con ID, verificación/TEST, ruta local de evidencia
+entre backticks y resultado `PASS|FAIL|BLOCKED`. El checker exige todos los
+AC de SPEC en PASS antes de `VALIDATED`; el análisis humano revisa su calidad.
+
+| AC | TEST/verificación y evidencia | Result |
+|----|-------------------------------|--------|
+| AC-001 | TEST-001; `evidence/task-001.md` | PENDING |
+
 ## AC-001 — [Título]
-
-**Related requirements:**
-
-- FR-[XXX]
-
+**Related requirements:** [FR/NFR/SEC]
 ### Given
-
-[Initial condition]
-
+[Precondición aprobada.]
 ### When
-
-[Action]
-
+[Acción.]
 ### Then
-
-[Expected behavior]
-
+[Resultado esperado.]
 ### Evidence
-
-- TEST-[XXX]
-- [Other evidence]
-
+[TEST y enlace verificable.]
 ### Result
-
-PENDING
-
----
+[PASS | FAIL | BLOCKED]
 
 # 8. Test Results
 
-| Test | Type | Related Requirement | Related AC | Result |
-|---|---|---|---|---|
-| TEST-001 | UNIT | FR-001 | AC-001 | PENDING |
-| TEST-002 | INTEGRATION | FR-002 | AC-002 | PENDING |
-| TEST-004 | SECURITY | SEC-001 | AC-004 | PENDING |
+Cada TEST requerido en TASKS debe aparecer con ID, resultado PASS y referencia
+comprobable. Usar rutas locales existentes entre backticks, por ejemplo
+`evidence/task-001.md`; no usar rutas externas ni rutas con `..`.
 
-Supported test types include:
+| TEST | Type | FR/AC/SEC | Command/evidence | Result |
+|------|------|-----------|------------------|--------|
+| TEST-001 | UNIT / INTEGRATION / CONTRACT / E2E / SECURITY / OTHER | FR-001, AC-001 | [Comando/enlace] | PENDING |
 
-- UNIT
-- INTEGRATION
-- CONTRACT
-- E2E
-- SECURITY
-- REGRESSION
-- OTHER
-
-Supported results:
-
-- PASS
-- FAIL
-- BLOCKED
-- NOT_RUN
-- NOT_APPLICABLE
-
-FAIL, BLOCKED and NOT_RUN do not constitute evidence of compliance.
+FAIL, BLOCKED y NOT_RUN no prueban cumplimiento.
 
 ## 8.1 TDD Evidence Review
 
-Aplicar a features posteriores a la política TDD. En cada cambio de
-comportamiento automatizable verificar RED antes del código productivo, causado
-por comportamiento faltante, y GREEN posterior. Enlazar evidencia dedicada;
-no copiar logs largos aquí.
+Para features posteriores a la política, comprobar RED anterior al cambio y causado por conducta faltante, GREEN posterior y prueba tras refactor cuando hubo. No exigir RED retroactivo a features ya validadas.
 
-| TASK / TEST | Aplicabilidad | RED y causa | GREEN / refactor | Motivo y verificación alternativa | Resultado |
-|-------------|---------------|-------------|------------------|-----------------------------------|-----------|
-| TASK-001 / TEST-001 | OBLIGATORIO / NO APLICA | [Evidencia o N/A] | [Evidencia o N/A] | [Motivo y alternativa si N/A] | PENDING |
+| TASK / TEST | Aplicabilidad | RED y causa | GREEN / refactor | Motivo y alternativa si N/A | Resultado |
+|-------------|---------------|-------------|------------------|-----------------------------|-----------|
+| TASK-001 / TEST-001 | OBLIGATORIO / NO APLICA | [Enlace/N/A] | [Enlace/N/A] | [Motivo/verificación] | PENDING |
 
-Una falla de entorno no cuenta como RED y mantiene BLOCKED la tarea afectada.
-Una excepción sin verificación suficiente no permite PASS. No exigir evidencia
-RED retroactiva a features ya validadas.
-
----
+Fallo de entorno no es RED y mantiene BLOCKED; excepción sin evidencia suficiente no permite PASS.
 
 # 9. Evidence Quality Review
 
-Verify that evidence is meaningful.
+- [ ] Aserciones significativas, tests requeridos habilitados, mocks representativos.
+- [ ] Pruebas verifican conducta y AC de la SPEC vigente; no se debilitó evidencia para PASS.
 
-- [ ] Tests contain meaningful assertions.
-- [ ] Required tests are not skipped.
-- [ ] Mocks do not remove the behavior being validated.
-- [ ] Tests verify behavior rather than implementation details only.
-- [ ] Acceptance criteria have sufficient evidence.
-- [ ] Evidence corresponds to the current SPEC.
-- [ ] No evidence was weakened to obtain PASS.
-
-Findings:
-
-[None / findings]
-
----
+Findings: [Ninguno / referencias.]
 
 # 10. Quality Gates
 
 | Gate | Result | Evidence |
-|---|---|---|
-| Format | PENDING | |
-| Lint | PENDING | |
-| Type Check | PENDING | |
-| Unit Tests | PENDING | |
-| Integration Tests | PENDING | |
-| Contract Tests | PENDING | |
-| E2E Tests | PENDING | |
-| Security Checks | PENDING | |
-| Build | PENDING | |
+|------|--------|----------|
+| Format/Lint/Types | PENDING / NOT_APPLICABLE | [Comando/razón] |
+| Unit/Integration/Contract/E2E/Security | PENDING / NOT_APPLICABLE | [Comando/razón] |
+| Build | PENDING / NOT_APPLICABLE | [Comando/razón] |
 
-Use NOT_APPLICABLE when a gate does not exist or does not apply,
-with justification when necessary.
-
----
+Justificar gates inexistentes o no aplicables.
 
 # 11. Security Validation
 
-Review when applicable:
-
-- authentication;
-- authorization;
-- ownership;
-- input validation;
-- sensitive data;
-- secrets;
-- destructive operations;
-- file uploads;
-- external integrations;
-- logging;
-- error exposure;
-- data access.
+[Revisar autenticación, autorización/ownership, entradas, datos, secretos, destrucción, uploads, integraciones, logs, errores y acceso cuando aplique.]
 
 ## Findings
 
-| ID | Requirement | Finding | Severity | Status |
-|---|---|---|---|---|
-| SEC-FINDING-001 | SEC-[XXX] | [Finding] | LOW / MEDIUM / HIGH | OPEN |
+| ID | Requirement | Finding | Severity | Status | Evidence/decision |
+|----|-------------|---------|----------|--------|-------------------|
+| SEC-FINDING-001 | SEC-[XXX] | [Riesgo] | LOW / MEDIUM / HIGH | OPEN | [Enlace] |
 
-Estados permitidos para un security finding:
-
-OPEN
-MITIGATED
-ACCEPTED
-NOT_APPLICABLE
-
-Semántica:
-
-- `OPEN`: el finding permanece sin resolver.
-- `MITIGATED`: se aplicó una mitigación y existe evidencia suficiente
-  para evaluar su efectividad.
-- `ACCEPTED`: el riesgo fue aceptado mediante la autoridad
-  correspondiente.
-- `NOT_APPLICABLE`: se determinó justificadamente que el finding
-  no aplica.
-
-`ACCEPTED` no constituye por sí mismo evidencia de cumplimiento
-de un requisito de seguridad y no permite automáticamente
-un resultado `PASS`.
-
-`MITIGATED` requiere evidencia suficiente.
-
-Si la aceptación o resolución implica una excepción, cambio de
-requisito, cambio de alcance o cambio técnico, deberá actualizarse
-el artefacto propietario correspondiente y recuperarse los approval
-gates aplicables antes de continuar.
-
-Si no hay hallazgos:
-
-No se identificaron hallazgos de seguridad que impidan el acceso.
-
----
+`OPEN`: no resuelto; `MITIGATED`: mitigación con evidencia; `ACCEPTED`: aceptación por autoridad con alcance/justificación, sin equivaler a SEC PASS; `NOT_APPLICABLE`: justificar. Excepción o cambio funcional/técnico vuelve al artefacto dueño y sus gates. Si no hay hallazgos, escribirlo expresamente.
 
 # 12. Scope Validation
 
 ## Files Created
 
-- [path]
+[Rutas o ninguno.]
 
 ## Files Modified
 
-- [path]
+[Rutas o ninguno.]
 
 ## Files Removed
 
-- [path]
+[Rutas o ninguno.]
 
 ## Dependencies Added
 
-- [dependency]
+[Dependencias o ninguna.]
 
 ## Migrations
 
-- [migration]
+[Migraciones o ninguna.]
 
 ## Configuration Changes
 
-- [change]
+[Cambios o ninguno.]
 
-Each change shall be classified as:
-
-AUTHORIZED
-MINOR_DEVIATION
-UNAUTHORIZED_CHANGE
-
----
+Comparar también contratos y conducta con alcance aprobado.
 
 # 13. Scope Deviations
 
-| ID | Change | Classification | Justification | Blocking |
-|---|---|---|---|---|
-| DEV-001 | [Change] | [Classification] | [Reason] | YES / NO |
+| ID | Change | Classification | Reason | Blocking |
+|----|--------|----------------|--------|----------|
+| DEV-001 | [Cambio] | AUTHORIZED / MINOR DEVIATION / UNAUTHORIZED CHANGE | [Motivo] | YES / NO |
 
-A significant UNAUTHORIZED_CHANGE prevents final PASS until
-resolved or incorporated through the SDD process.
-
----
+Cambio significativo no autorizado impide PASS hasta retirarlo o integrarlo en SDD.
 
 # 14. Architecture Validation
 
-Verify implementation against:
-
-- approved PLAN;
-- architecture standard;
-- applicable ADRs.
-
-Checklist:
-
-- [ ] Component boundaries respected.
-- [ ] Responsibilities respected.
-- [ ] Dependency direction respected.
-- [ ] Contracts respected.
-- [ ] Data model matches approved design.
-- [ ] Integrations match approved design.
-- [ ] ADR decisions respected.
-- [ ] No unapproved architecture introduced.
+[Cotejar PLAN, standard y ADR: límites, responsabilidades, dependencias, contratos, datos e integraciones.]
 
 ## Architecture Deviations
 
-[None / findings]
-
----
+[Desviaciones y resolución, o ninguna.]
 
 # 15. Regression Validation
 
-Relevant existing tests:
+| TEST/flujo | Resultado | Evidencia |
+|------------|-----------|-----------|
+| [Regresión relevante] | PENDING | [Comando/enlace] |
 
-- [TEST / suite]
-
-Result:
-
-PENDING
-
-Known regressions:
-
-[None / list]
-
-An unresolved confirmed regression prevents final PASS unless
-the previous behavior was explicitly superseded by an approved SPEC.
-
----
+Una regresión conocida sin resolver impide PASS salvo reemplazo aprobado en SPEC.
 
 # 16. Task Validation
 
-| Task | Objective Completed | Tests | Evidence | DoD | Result |
-|---|---|---|---|---|---|
-| TASK-001 | PENDING | PENDING | PENDING | PENDING | PENDING |
+Registrar una fila por TASK requerida con ID, evidencia local y resultado
+PASS. Debe coincidir con la ficha `DONE` y la tabla de orden de TASKS.
 
-A TASK marked DONE without sufficient evidence shall be considered
-a validation failure until corrected.
-
----
+| TASK | DoD y evidencia | Result |
+|------|----------------|--------|
+| TASK-001 | [Enlace] | PENDING |
 
 # 17. Discoveries
 
-| Discovery | Description | Classification | Action |
-|---|---|---|---|
-| DISCOVERY-001 | [Description] | BLOCKING / NON_BLOCKING | [Action] |
-
-Blocking discoveries shall be resolved before final PASS.
-
-Non-blocking discoveries may be moved to future work.
-
----
+| ID | Hallazgo | Blocking | Acción |
+|----|----------|----------|--------|
+| DISCOVERY-001 | [Descripción] | YES / NO | [Acción] |
 
 # 18. Final Traceability Matrix
 
-| Requirement | Acceptance | Plan | Task | Implementation | Test | Evidence | Result |
-|---|---|---|---|---|---|---|---|
-| FR-001 | AC-001 | DEC-001 | TASK-001 | [path/reference] | TEST-001 | [evidence] | PENDING |
-| SEC-001 | AC-004 | DEC-002 | TASK-002 | [path/reference] | TEST-004 | [evidence] | PENDING |
-
-Every mandatory traceability chain shall terminate in sufficient
-evidence and PASS.
-
----
+| Requirement | AC | Plan | Task | Implementation | Test/Evidence | Result |
+|-------------|----|------|------|----------------|---------------|--------|
+| FR-001 | AC-001 | DEC-001 | TASK-001 | [Ruta] | TEST-001 | PENDING |
 
 # 19. Traceability Gaps
-
-Check for:
-
-- Requirement without Acceptance Criterion.
-- Acceptance Criterion without implementation coverage.
-- Acceptance Criterion without evidence.
-- Required PLAN item without TASK.
-- TASK without justification.
-- Implementation without TASK.
-- Required behavior without test or equivalent evidence.
-- Test without relevant behavior.
 
 ## Gaps
 
 | ID | Type | Artifact | Description | Blocking |
-|---|---|---|---|---|
-| GAP-001 | [Type] | [Reference] | [Description] | YES / NO |
+|----|------|----------|-------------|----------|
+| GAP-001 | [Tipo] | [Referencia] | [Falta] | YES / NO |
 
-If none:
-
-No traceability gaps identified.
-
----
+Si no hay gaps, declararlo; uno bloqueante impide PASS.
 
 # 20. Validation Findings
 
-All relevant validation problems shall be recorded.
+Registrar todo problema relevante.
 
 ## FINDING-001 — [Title]
 
-**Type:**
-
-IMPLEMENTATION
-TASK
-PLAN
-SPEC
-SECURITY
-REGRESSION
-TRACEABILITY
-SCOPE
-ARCHITECTURE
-ENVIRONMENT
-
-**Severity:**
-
-LOW
-MEDIUM
-HIGH
-
-**Related artifacts:**
-
-- [Artifact]
-
-**Description:**
-
-[Finding]
-
-**Evidence:**
-
-[Evidence]
-
-**Status:**
-
-OPEN
-
-**Required action:**
-
-[Action]
-
----
+**Type:** [IMPLEMENTATION | TASK | PLAN | SPEC | SECURITY | REGRESSION | TRACEABILITY | SCOPE | ARCHITECTURE | ENVIRONMENT]
+**Severity:** [LOW | MEDIUM | HIGH]
+**Related artifacts:** [Rutas/IDs]
+**Description:** [Problema.]
+**Evidence:** [Enlace.]
+**Status:** [OPEN | RESOLVED]
+**Required action:** [Acción.]
 
 # 21. Findings Summary
 
 | Severity | Open | Resolved |
-|---|---:|---:|
+|----------|-----:|---------:|
 | HIGH | 0 | 0 |
 | MEDIUM | 0 | 0 |
 | LOW | 0 | 0 |
 
-Blocking findings:
-
-0
-
----
+Blocking findings: [Número.]
 
 # 22. Requirement Summary
 
-Functional Requirements:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
-Non-Functional Requirements:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
-Security Requirements:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
-Acceptance Criteria:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
----
+| Grupo | PASS | FAIL | BLOCKED |
+|-------|-----:|-----:|--------:|
+| FR | 0 | 0 | 0 |
+| NFR | 0 | 0 | 0 |
+| SEC | 0 | 0 | 0 |
+| AC | 0 | 0 | 0 |
 
 # 23. Test Summary
 
-Unit:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
-Integration:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
-Contract:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
-E2E:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
-Security:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
-Regression:
-
-PASS: 0
-FAIL: 0
-BLOCKED: 0
-
----
+| Tipo | PASS | FAIL | BLOCKED |
+|------|-----:|-----:|--------:|
+| Unit | 0 | 0 | 0 |
+| Integration | 0 | 0 | 0 |
+| Contract | 0 | 0 | 0 |
+| E2E | 0 | 0 | 0 |
+| Security | 0 | 0 | 0 |
+| Regression | 0 | 0 | 0 |
 
 # 24. Final Gate
 
-Final validation may result in PASS only when:
-
-- [ ] All MUST requirements are PASS.
-- [ ] All mandatory acceptance criteria are PASS.
-- [ ] Required tests are PASS.
-- [ ] Applicable TDD RED/GREEN evidence is valid, or a justified non-applicable
-      case has sufficient alternative verification; environment blockers remain BLOCKED.
-- [ ] Mandatory quality gates are PASS.
-- [ ] Mandatory security requirements are PASS.
-- [ ] No known regression remains unresolved.
-- [ ] No blocking traceability gap exists.
-- [ ] No significant unauthorized change exists.
-- [ ] No blocking architecture deviation exists.
-- [ ] No blocking finding remains OPEN.
-- [ ] No required TASK remains incomplete.
-- [ ] Evidence is sufficient.
-
----
+- [ ] MUST, AC, TEST, calidad y SEC obligatorios en PASS; evidencia TDD aplicable válida o N/A justificado con alternativa.
+- [ ] TASKS COMPLETED, todas las TASK requeridas DONE y evidencia suficiente.
+- [ ] Sin regresiones, gaps, cambios no autorizados, desviaciones arquitectónicas ni findings OPEN bloqueantes.
 
 # 25. Final Result
+**Validation Status:** DRAFT
+**SPEC Compliance:** PENDING
+Resultados permitidos: `PASS | FAIL | BLOCKED`.
+**Feature Status:** NOT_VALIDATED
 
-**Validation Status:**
-
-DRAFT
-
-**SPEC Compliance:**
-
-PENDING
-
-Allowed final results:
-
-PASS
-FAIL
-BLOCKED
-
-**Feature Status:**
-
-NOT_VALIDATED
-
-When final result is PASS:
-
-Feature Status:
-
-VALIDATED
-
----
+Solo con `SPEC Compliance: PASS` usar `Feature Status: VALIDATED`. Registrar ambos campos en el reporte final.
 
 # 26. Required Next Action
 
-If PASS:
-
-No corrective action required.
-
-If implementation defect:
-
-Return to:
-
-/implement
-
-Apply the reopening procedure in `/implement`, section 17.1, before code
-changes: link the finding, reopen TASKS and affected tasks, retain previous
-evidence and recheck preconditions. Complete TASKS again and repeat
-`/validate` after the correction; reopening alone does not establish PASS.
-
-If task decomposition defect:
-
-Return to:
-
-/tasks
-
-If technical design defect:
-
-Return to:
-
-/plan
-
-If requirement defect or ambiguity:
-
-Return to:
-
-/specify
-or
-/clarify
-
-If external blocker:
-
-Resolve blocker and repeat:
-
-/validate
-
----
+PASS → cierre; defecto de implementación → `/implement` §17.1 (finding, reapertura, evidencia anterior, precondiciones, corrección y nueva validación); desglose → `/tasks`; diseño → `/plan`; requisito → `/specify` o `/clarify`; bloqueo externo → resolver y repetir `/validate`.
 
 # 27. Approval
 
-**Validated by:**
-
-[Human / authorized validator]
-
-**Date:**
-
-YYYY-MM-DD
-
-**Notes:**
-
-[Optional notes]
+**Validated by:** [Human / authorized validator]
+**Date:** YYYY-MM-DD
+**Notes:** [Notas opcionales.]

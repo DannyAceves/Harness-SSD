@@ -29,6 +29,15 @@ HANDOFF_BLOCK = re.compile(r"```json harness-state\s*\n(.*?)\n```", re.DOTALL)
 INDEX_ARTIFACT = re.compile(r"specs/[0-9]{3}-[a-z0-9-]+/(?:spec|plan|tasks|validation)\.md")
 SPEC_RESULT = re.compile(r"(?im)^\*{0,2}SPEC Compliance:\*{0,2}\s*(PASS|FAIL)\s*$")
 FEATURE_RESULT = re.compile(r"(?im)^\*{0,2}Feature Status:\*{0,2}\s*(VALIDATED|BLOCKED|IN_PROGRESS)\s*$")
+VALIDATION_RESULT = re.compile(r"(?im)^\*\*Result:\*\*\s*(PASS|FAIL|BLOCKED|PENDING)\s*$")
+BLOCKING_COUNT = re.compile(r"(?im)^(?:Blocking findings|Gaps bloqueantes|Findings abiertos|Bloqueos pendientes):\s*([1-9]\d*)\b")
+TASK_HEADING = re.compile(r"^## (TASK-\d{3})\b", re.MULTILINE)
+TASK_STATE = re.compile(r"^\*\*Estado:\*\*\s*(\S+)")
+TASK_ID = re.compile(r"TASK-\d{3}")
+TASK_STATES = {"TODO", "IN_PROGRESS", "BLOCKED", "DONE"}
+AC_HEADING = re.compile(r"^## (AC-\d{3})\b", re.MULTILINE)
+TEST_ID = re.compile(r"TEST-\d{3}")
+BACKTICK = re.compile(r"`([^`\n]+)`")
 
 
 @dataclass(frozen=True)
@@ -110,6 +119,205 @@ def _document_state(path: Path, issues: list[Issue]) -> str | None:
     return states[0] if states else None
 
 
+def _task_states(path: Path, issues: list[Issue]) -> dict[str, str]:
+    cards: dict[str, str] = {}
+    rows: dict[str, str] = {}
+    current: str | None = None
+    seen_cards: set[str] = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        heading = re.match(r"^#{1,2} ", line)
+        if heading:
+            match = TASK_HEADING.match(line)
+            current = match.group(1) if match else None
+            if current:
+                if current in seen_cards:
+                    _issue(issues, "DUPLICATE_TASK", path, current)
+                seen_cards.add(current)
+        if current:
+            match = TASK_STATE.match(line)
+            if match:
+                token = match.group(1)
+                state = token.rstrip(".")
+                if token != state or line[match.end():].strip():
+                    _issue(issues, "INVALID_TASK_FORMAT", path, current)
+                if state not in TASK_STATES:
+                    _issue(issues, "INVALID_TASK_STATE", path, f"{current}: {state}")
+                elif current in cards:
+                    _issue(issues, "DUPLICATE_TASK_STATE", path, current)
+                else:
+                    cards[current] = state
+        if line.startswith("|"):
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            if len(cells) in {3, 4} and cells[0].isdigit() and TASK_ID.fullmatch(cells[1]):
+                task_id, state = cells[1], cells[-1]
+                if task_id in rows:
+                    _issue(issues, "DUPLICATE_TASK_ROW", path, task_id)
+                elif state not in TASK_STATES:
+                    _issue(issues, "INVALID_TASK_STATE", path, f"{task_id}: {state}")
+                else:
+                    rows[task_id] = state
+    for task_id in sorted(seen_cards - cards.keys()):
+        _issue(issues, "MISSING_TASK_STATE", path, task_id)
+    for task_id in sorted(seen_cards - rows.keys()):
+        _issue(issues, "MISSING_TASK_ROW", path, task_id)
+    for task_id in sorted(rows.keys() - seen_cards):
+        _issue(issues, "MISSING_TASK_CARD", path, task_id)
+    for task_id in sorted(cards.keys() & rows.keys()):
+        if cards[task_id] != rows[task_id]:
+            _issue(issues, "TASK_STATE_MISMATCH", path, f"{task_id}: card {cards[task_id]}, row {rows[task_id]}")
+    if _document_state(path, []) == "COMPLETED":
+        for task_id in sorted(cards):
+            if cards[task_id] != "DONE":
+                _issue(issues, "INCOMPLETE_TASKS", path, f"{task_id}: {cards[task_id]}")
+    return cards
+
+
+def _declares_validated(report: str) -> bool:
+    results = FEATURE_RESULT.findall(report)
+    return bool(results and results[-1].upper() == "VALIDATED")
+
+
+def _expanded_ids(value: str, prefix: str) -> set[str]:
+    found = set(re.findall(rf"{prefix}-\d{{3}}", value))
+    for match in re.finditer(rf"({prefix}-\d{{3}})((?:/(?:{prefix}-)?\d{{3}})+)", value):
+        found.update(f"{prefix}-{number}" for number in re.findall(r"\d{3}", match.group(2)))
+    for match in re.finditer(rf"{prefix}-(\d{{3}})\s+(?:a|to|through)\s+(?:{prefix}-)?(\d{{3}})", value):
+        start, end = map(int, match.groups())
+        if start <= end <= start + 200:
+            found.update(f"{prefix}-{number:03d}" for number in range(start, end + 1))
+    return found
+
+
+def _result_rows(report: str, prefix: str) -> set[str]:
+    passed = set()
+    for line in report.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) < 3 or any(cell in {"FAIL", "BLOCKED", "PENDING", "NOT_RUN"} for cell in cells) or not any(
+            re.fullmatch(r"PASS(?:\s+local)?", cell, re.IGNORECASE) for cell in cells
+        ):
+            continue
+        if prefix == "TASK" and not cells[0].startswith("TASK-"):
+            continue
+        if prefix == "TEST" and not cells[0].startswith("TEST-"):
+            continue
+        if prefix == "AC" and not re.match(r"^(?:AC|FR|NFR|SEC|BR)-\d{3}\b", cells[0]):
+            continue
+        passed.update(_expanded_ids(line if prefix == "AC" else cells[0], prefix))
+    return passed
+
+
+def _failed_result_rows(report: str, prefix: str) -> set[str]:
+    failed = set()
+    for line in report.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) < 3 or not any(cell in {"FAIL", "BLOCKED", "PENDING", "NOT_RUN"} for cell in cells):
+            continue
+        if prefix in {"TASK", "TEST"} and not cells[0].startswith(f"{prefix}-"):
+            continue
+        if prefix == "AC" and not re.match(r"^(?:AC|FR|NFR|SEC|BR)-\d{3}\b", cells[0]):
+            continue
+        failed.update(_expanded_ids(line if prefix == "AC" else cells[0], prefix))
+    return failed
+
+
+def _evidence_issues(root: Path, feature: Path, report: str) -> list[Issue]:
+    issues: list[Issue] = []
+    validation = feature / "validation.md"
+    referenced_files = []
+    for match in BACKTICK.finditer(report):
+        token = match.group(1).strip()
+        if token.startswith("evidence/") or re.match(r"specs/\d{3}-[a-z0-9-]+/evidence/", token) or (
+            "evidence/" in token and (token.startswith("../") or token.startswith("/"))
+        ):
+            relative = Path(token)
+            candidate = (root / relative) if token.startswith("specs/") else (feature / relative)
+            if relative.is_absolute() or ".." in relative.parts or not candidate.resolve().is_relative_to(root.resolve()) or not candidate.exists():
+                _issue(issues, "INVALID_EVIDENCE_PATH", validation, token)
+            elif candidate.is_file():
+                referenced_files.append(token)
+    if not referenced_files:
+        _issue(issues, "MISSING_EVIDENCE_REFERENCE", validation, "No local evidence file referenced")
+    return issues
+
+
+def _structural_evidence(root: Path, feature: Path, report: str) -> list[Issue]:
+    issues = _evidence_issues(root, feature, report)
+    validation = feature / "validation.md"
+    spec = feature / "spec.md"
+    tasks = feature / "tasks.md"
+    if not spec.is_file() or not tasks.is_file():
+        return issues
+    required_ac = set(AC_HEADING.findall(spec.read_text(encoding="utf-8")))
+    passed_ac = _result_rows(report, "AC")
+    failed_ac = _failed_result_rows(report, "AC")
+    for match in AC_HEADING.finditer(report):
+        segment = report[match.end():]
+        end = re.search(r"^#{1,2} ", segment, re.MULTILINE)
+        if end:
+            segment = segment[:end.start()]
+        if re.search(r"(?im)^\*\*Result:\*\*\s*PASS\s*$", segment):
+            passed_ac.add(match.group(1))
+        if re.search(r"(?im)^\*\*Result:\*\*\s*(?:FAIL|BLOCKED|PENDING|NOT_RUN)\s*$", segment):
+            failed_ac.add(match.group(1))
+    for ac in sorted(required_ac & failed_ac):
+        _issue(issues, "CONFLICTING_AC_RESULT", validation, ac)
+    passed_ac.difference_update(failed_ac)
+    for ac in sorted(required_ac - passed_ac):
+        _issue(issues, "MISSING_AC_EVIDENCE", validation, ac)
+
+    task_text = tasks.read_text(encoding="utf-8")
+    required_tasks = set(TASK_HEADING.findall(task_text))
+    passed_tasks = _result_rows(report, "TASK")
+    failed_tasks = _failed_result_rows(report, "TASK")
+    for match in re.finditer(r"TASK-\d{3}\s+(?:a|to|through)\s+(?:TASK-)?\d{3}", report):
+        if "PASS" in report[match.end():match.end() + 350]:
+            passed_tasks.update(_expanded_ids(match.group(0), "TASK"))
+    for task_id in sorted(required_tasks & failed_tasks):
+        _issue(issues, "CONFLICTING_TASK_RESULT", validation, task_id)
+    passed_tasks.difference_update(failed_tasks)
+    for task_id in sorted(required_tasks - passed_tasks):
+        _issue(issues, "MISSING_TASK_EVIDENCE", validation, task_id)
+
+    required_tests = set(TEST_ID.findall(task_text))
+    passed_tests = _result_rows(report, "TEST")
+    failed_tests = _failed_result_rows(report, "TEST")
+    for test_id in sorted(required_tests & failed_tests):
+        _issue(issues, "CONFLICTING_TEST_RESULT", validation, test_id)
+    passed_tests.difference_update(failed_tests)
+    for test_id in sorted(required_tests - passed_tests):
+        _issue(issues, "MISSING_TEST_RESULT", validation, test_id)
+    return issues
+
+
+def _final_gate(feature: Path, issues: list[Issue]) -> bool:
+    validation = feature / "validation.md"
+    report = validation.read_text(encoding="utf-8")
+    if not _declares_validated(report):
+        return False
+    spec_results = SPEC_RESULT.findall(report)
+    results = VALIDATION_RESULT.findall(report)
+    if not spec_results or spec_results[-1].upper() != "PASS" or not results or results[-1].upper() != "PASS":
+        _issue(issues, "INVALID_VALIDATION_RESULT", validation, "VALIDATED requires final Result and SPEC Compliance PASS")
+    if BLOCKING_COUNT.search(report):
+        _issue(issues, "BLOCKING_VALIDATION_FINDING", validation, "VALIDATED report declares open blockers")
+    for name, expected in (("spec.md", "APPROVED"), ("plan.md", "APPROVED"), ("tasks.md", "COMPLETED")):
+        path = feature / name
+        if not path.is_file() or _document_state(path, []) != expected:
+            _issue(issues, "PREMATURE_VALIDATION", path, f"VALIDATED requires {name} {expected}")
+    tasks = feature / "tasks.md"
+    if tasks.is_file():
+        task_issues: list[Issue] = []
+        states = _task_states(tasks, task_issues)
+        if task_issues or not states or any(state != "DONE" for state in states.values()):
+            _issue(issues, "PREMATURE_VALIDATION", tasks, "VALIDATED requires consistent TASK states, all DONE")
+    issues.extend(_structural_evidence(feature.parents[1], feature, report))
+    return not issues
+
+
 def projected_state(root: Path) -> tuple[dict, set[str]]:
     active = []
     validated = []
@@ -122,9 +330,7 @@ def projected_state(root: Path) -> tuple[dict, set[str]]:
         validation = feature / "validation.md"
         if validation.is_file():
             report = validation.read_text(encoding="utf-8")
-            spec_results = SPEC_RESULT.findall(report)
-            feature_results = FEATURE_RESULT.findall(report)
-            if spec_results and feature_results and spec_results[-1].upper() == "PASS" and feature_results[-1].upper() == "VALIDATED":
+            if _declares_validated(report) and _final_gate(feature, []):
                 validated.append(f"SPEC-{match.group(1)}")
                 links.add(prefix + "validation.md")
                 continue
@@ -201,10 +407,18 @@ def audit_repository(root: Path) -> list[Issue]:
 
     for feature in sorted(specs.iterdir()):
         match = FEATURE_DIR.fullmatch(feature.name)
-        if not feature.is_dir() or not match or (legacy_context and feature.name in LEGACY_FEATURES):
+        if not feature.is_dir() or not match:
             continue
         if feature.is_symlink() or not feature.resolve().is_relative_to(root):
             _issue(issues, "INVALID_FEATURE", feature, "Feature must be inside repository")
+            continue
+        validation = feature / "validation.md"
+        if validation.is_file() and _declares_validated(validation.read_text(encoding="utf-8")):
+            _final_gate(feature, issues)
+        if legacy_context and feature.name in LEGACY_FEATURES:
+            tasks = feature / "tasks.md"
+            if tasks.is_file():
+                _task_states(tasks, issues)
             continue
         artifacts = [feature / name for name in ("spec.md", "plan.md", "tasks.md")]
         present = [path for path in artifacts if path.is_file()]
@@ -214,6 +428,8 @@ def audit_repository(root: Path) -> list[Issue]:
             _issue(issues, "MISSING_SPEC", feature, "Feature has PLAN or TASKS without SPEC")
             continue
         states = {path: _document_state(path, issues) for path in present}
+        if artifacts[2].is_file():
+            _task_states(artifacts[2], issues)
         required = {
             path for path, state in states.items()
             if state in {"APPROVED", "IN_PROGRESS", "COMPLETED", "SUPERSEDED"}

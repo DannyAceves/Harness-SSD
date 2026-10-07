@@ -1,504 +1,112 @@
 # Estándar de Seguridad
 
-**Versión:** 1.0.0  
+**Versión:** 1.0.0
 **Estado:** Activo
 
 ## Propósito
 
-Este documento define los principios mínimos de seguridad que deberán
-considerarse durante la especificación, planificación, implementación
-y validación del software.
-
-La seguridad deberá formar parte del diseño del sistema y no tratarse
-únicamente como una revisión posterior a la implementación.
-
----
+Integrar seguridad en SPEC, PLAN, implementación y validación, con controles proporcionales al riesgo.
 
 # 1. Seguridad desde la especificación
 
-Los requisitos relacionados con seguridad deberán identificarse
-durante la especificación cuando sean relevantes.
-
-Esto puede incluir:
-
-- autenticación;
-- autorización;
-- protección de datos;
-- privacidad;
-- auditoría;
-- integridad;
-- disponibilidad;
-- gestión de sesiones;
-- restricciones de acceso;
-- cumplimiento normativo.
-
-Los requisitos de seguridad relevantes deberán ser explícitos
-y verificables.
-
----
+Identificar requisitos de seguridad relevantes, explícitos y verificables: autenticación, autorización, datos, privacidad, auditoría, integridad, disponibilidad, sesiones, acceso o cumplimiento.
 
 # 2. Entradas no confiables
 
-Toda información proveniente de fuera del límite de confianza del
-sistema deberá considerarse no confiable hasta ser validada.
-
-Esto incluye:
-
-- solicitudes HTTP;
-- formularios;
-- archivos;
-- parámetros;
-- headers;
-- cookies;
-- eventos;
-- mensajes;
-- APIs externas;
-- webhooks;
-- variables provenientes del cliente.
-
-Las entradas deberán validarse antes de utilizarse en operaciones
-sensibles.
-
----
+Tratar como no confiable toda entrada fuera del límite de confianza: HTTP, formularios, archivos, parámetros, headers, cookies, eventos, mensajes, APIs, webhooks y cliente. Validar antes de operaciones sensibles.
 
 # 3. Autenticación
 
-Cuando un sistema requiera identificar usuarios o servicios,
-el mecanismo de autenticación deberá definirse explícitamente
-en el plan técnico.
-
-No deberán implementarse mecanismos de autenticación improvisados
-cuando existan soluciones estándar y suficientemente seguras.
-
-Las credenciales nunca deberán almacenarse en texto plano.
-
----
+Definir en PLAN el mecanismo para identificar usuarios o servicios. Preferir soluciones estándar seguras; no improvisar ni guardar credenciales en texto plano.
 
 # 4. Autorización
 
-Autenticación y autorización deberán tratarse como conceptos
-independientes.
-
-Autenticación responde:
-
-¿Quién eres?
-
-Autorización responde:
-
-¿Qué puedes hacer?
-
-Toda operación protegida deberá verificar los permisos necesarios
-en un límite confiable del sistema.
-
-No deberá confiarse únicamente en restricciones implementadas
-en la interfaz de usuario.
-
----
+Separar identidad de permisos. Verificar autorización de cada operación protegida en un límite confiable; ocultar controles en UI no basta.
 
 # 5. Principio de mínimo privilegio
 
-Usuarios, servicios y componentes deberán recibir únicamente
-los permisos necesarios para realizar sus funciones.
-
-Se evitarán permisos globales o administrativos cuando no sean
-necesarios.
-
----
+Dar a usuarios, servicios y componentes solo los permisos necesarios; evitar acceso global o administrativo innecesario.
 
 # 6. Secretos
 
-Los secretos no deberán almacenarse directamente en:
-
-- código fuente;
-- archivos versionados;
-- pruebas;
-- documentación;
-- logs;
-- mensajes de error.
-
-Ejemplos de secretos:
-
-- passwords;
-- API keys;
-- access tokens;
-- refresh tokens;
-- private keys;
-- credenciales de bases de datos.
-
-Los secretos deberán administrarse mediante mecanismos apropiados
-para el entorno utilizado.
-
-La prohibición de almacenar o insertar secretos directamente no impide
-que una aplicación o prueba autorizada los utilice cuando sean
-necesarios.
-
-En esos casos, deberán suministrarse mediante mecanismos seguros del
-entorno y evitar su exposición en código, archivos versionados, logs,
-resultados de pruebas o documentación.
-
----
+Nunca insertar secretos directamente en código, archivos versionados, pruebas, documentación, logs ni errores. Incluye passwords, keys, tokens, claves privadas y credenciales de BD. Una aplicación o prueba autorizada puede usarlos cuando sea necesario, suministrados por mecanismos seguros del entorno y sin exponerlos en resultados o evidencia.
 
 # 7. Datos sensibles
 
-Los datos sensibles deberán identificarse cuando existan.
-
-Su tratamiento deberá considerar:
-
-- acceso;
-- almacenamiento;
-- transmisión;
-- logs;
-- backups;
-- retención;
-- eliminación.
-
-El sistema deberá evitar almacenar información sensible que no sea
-necesaria para cumplir sus requisitos.
-
----
+Identificarlos y planificar acceso, almacenamiento, tránsito, logs, backups, retención y eliminación. No conservar información sensible innecesaria.
 
 # 8. Protección de datos en tránsito
 
-Cuando exista comunicación a través de redes no confiables,
-deberán utilizarse mecanismos apropiados para proteger la información
-durante su transmisión.
-
-Las decisiones concretas dependerán de la arquitectura y deberán
-documentarse en el plan técnico cuando sean relevantes.
-
----
+Proteger comunicaciones sobre redes no confiables con mecanismos adecuados a la arquitectura; documentar decisiones relevantes en PLAN.
 
 # 9. Protección de datos almacenados
 
-Cuando la sensibilidad de los datos lo requiera, deberá evaluarse
-la necesidad de protección adicional durante su almacenamiento.
-
-La estrategia deberá definirse según:
-
-- sensibilidad;
-- amenazas;
-- requisitos legales;
-- infraestructura;
-- impacto potencial.
-
----
+Evaluar protección adicional según sensibilidad, amenazas, ley, infraestructura e impacto.
 
 # 10. Manejo seguro de errores
 
-Los errores mostrados a consumidores externos no deberán revelar
-innecesariamente:
-
-- stack traces;
-- credenciales;
-- secretos;
-- consultas internas;
-- rutas internas;
-- configuración;
-- información sensible.
-
-Los detalles necesarios para diagnóstico deberán registrarse
-de forma segura cuando corresponda.
-
----
+No revelar a consumidores stack traces, secretos, consultas, rutas, configuración ni datos sensibles innecesarios. Registrar diagnóstico necesario de forma segura.
 
 # 11. Logging seguro
 
-Los logs deberán evitar registrar información sensible
-innecesariamente.
-
-Se deberá prestar especial atención a:
-
-- passwords;
-- tokens;
-- cookies de sesión;
-- headers de autorización;
-- documentos sensibles;
-- datos personales.
-
-Cuando sea necesario registrar identificadores sensibles,
-deberá evaluarse su anonimización o enmascaramiento.
-
----
+Evitar passwords, tokens, cookies, headers de autorización, documentos sensibles y datos personales innecesarios en logs. Enmascarar o anonimizar identificadores sensibles cuando proceda.
 
 # 12. Dependencias
 
-Las dependencias externas forman parte de la superficie de riesgo
-del sistema.
-
-Antes de introducir una dependencia deberá evaluarse:
-
-- necesidad;
-- mantenimiento;
-- procedencia;
-- vulnerabilidades conocidas;
-- impacto;
-- permisos requeridos.
-
-Las dependencias deberán mantenerse actualizadas según el nivel
-de riesgo y necesidades del proyecto.
-
----
+Antes de añadir una dependencia evaluar necesidad, mantenimiento, procedencia, vulnerabilidades, impacto y permisos. Mantenerla actualizada conforme al riesgo y necesidades del proyecto.
 
 # 13. Configuración segura
 
-Los valores predeterminados deberán favorecer configuraciones seguras
-cuando sea razonable.
-
-Las configuraciones sensibles deberán revisarse para cada entorno.
-
-Se deberá evitar que configuraciones destinadas a desarrollo
-se utilicen accidentalmente en producción.
-
----
+Preferir valores seguros; revisar configuración sensible por entorno y evitar que ajustes de desarrollo lleguen accidentalmente a producción.
 
 # 14. Operaciones destructivas
 
-Las operaciones destructivas o irreversibles deberán requerir
-controles adecuados.
-
-Ejemplos:
-
-- eliminar información;
-- sobrescribir datos;
-- cerrar cuentas;
-- revocar accesos;
-- ejecutar migraciones destructivas.
-
-Cuando el riesgo lo justifique deberán existir mecanismos adicionales
-como confirmación, autorización o auditoría.
-
----
+Controlar eliminación, sobrescritura, cierre de cuentas, revocación y migraciones destructivas. Si el riesgo lo exige, añadir confirmación, autorización o auditoría.
 
 # 15. Integraciones externas
 
-Las integraciones externas deberán considerarse límites de confianza.
-
-El sistema deberá:
-
-- validar respuestas cuando corresponda;
-- manejar indisponibilidad;
-- manejar respuestas inesperadas;
-- limitar permisos;
-- proteger credenciales;
-- verificar autenticidad cuando sea aplicable.
-
----
+Tratarlas como límites de confianza: validar respuestas cuando proceda, manejar indisponibilidad y respuestas inesperadas, limitar permisos, proteger credenciales y verificar autenticidad si aplica.
 
 # 16. Archivos
 
-Cuando el sistema permita subir archivos deberá evaluarse:
-
-- tipo de archivo;
-- tamaño;
-- nombre;
-- extensión;
-- contenido;
-- almacenamiento;
-- permisos;
-- acceso posterior.
-
-El nombre o extensión proporcionados por el usuario no deberán
-considerarse evidencia suficiente del tipo real de contenido.
-
----
+Para uploads evaluar tipo real, tamaño, nombre, extensión, contenido, almacenamiento, permisos y acceso posterior. Nombre o extensión del usuario no demuestran el tipo real.
 
 # 17. Base de datos
 
-El acceso a datos deberá utilizar mecanismos que reduzcan riesgos
-de inyección y modificaciones no autorizadas.
-
-Cuando la tecnología lo permita deberán utilizarse:
-
-- consultas parametrizadas;
-- ORMs seguros;
-- validación;
-- restricciones de base de datos;
-- permisos mínimos.
-
----
+Reducir inyección y modificaciones no autorizadas con consultas parametrizadas u ORM seguro, validación, restricciones y permisos mínimos cuando aplique.
 
 # 18. Seguridad del cliente
 
-Las validaciones realizadas en el cliente deberán considerarse
-una mejora de experiencia y no un límite de seguridad.
-
-Las reglas críticas deberán verificarse nuevamente en un entorno
-confiable.
-
-Ejemplo:
-
-Frontend:
-
-"Este botón sólo aparece para administradores."
-
-Esto NO demuestra que:
-
-API:
-
-"Este endpoint sólo puede ejecutarlo un administrador."
-
-La API deberá realizar su propia autorización.
-
----
+La validación del cliente mejora UX pero no es límite de seguridad. Repetir reglas críticas y autorización en un entorno confiable.
 
 # 19. Fallo seguro
 
-Cuando exista incertidumbre sobre permisos o estado de seguridad,
-el comportamiento predeterminado deberá favorecer la opción segura.
-
-Ejemplo:
-
-Permiso desconocido
-→ acceso denegado
-
-y no:
-
-Permiso desconocido
-→ acceso permitido
-
----
+Ante permiso o estado de seguridad incierto, favorecer la opción segura; un permiso desconocido deniega acceso.
 
 # 20. Seguridad y agentes
 
-Los agentes que implementen código no deberán:
-
-- desactivar controles de seguridad para facilitar una implementación;
-- insertar secretos reales;
-- reducir validaciones sin justificación;
-- otorgar permisos adicionales innecesarios;
-- desactivar autenticación o autorización para hacer pasar pruebas;
-- ignorar vulnerabilidades detectadas relevantes para la tarea.
-
-Cuando una implementación requiera comprometer un control de seguridad,
-el agente deberá detenerse y solicitar una decisión explícita.
-
----
+Un agente no desactiva controles, inserta secretos reales, reduce validaciones sin justificación, concede permisos excesivos, quita autenticación para pasar pruebas ni ignora vulnerabilidades relevantes. Si implementar exige comprometer un control, detenerse y obtener decisión explícita.
 
 # 21. Cambios sensibles
 
-Los cambios relacionados con:
-
-- autenticación;
-- autorización;
-- criptografía;
-- secretos;
-- permisos;
-- sesiones;
-- datos sensibles;
-- operaciones destructivas;
-
-deberán identificarse como cambios sensibles durante el plan
-y las tareas.
-
-Estos cambios podrán requerir validaciones adicionales.
-
----
+Identificar en PLAN y TASKS cambios de autenticación, autorización, criptografía, secretos, permisos, sesiones, datos sensibles u operaciones destructivas; pueden requerir validación adicional.
 
 # 22. Seguridad verificable
 
-Los controles de seguridad relevantes deberán tener evidencia
-de validación.
+Cada control relevante requiere evidencia enlazada a requisito, AC y prueba o validación (`SEC-[XXX] → AC-[XXX] → TEST-[XXX] → resultado`).
 
 ## Ejemplo ilustrativo
 
-El siguiente ejemplo muestra cómo mantener trazabilidad entre un
-requisito de seguridad, su criterio de aceptación y su prueba.
-
-No representa un requisito real del proyecto.
-
-SEC-001
-
-Los usuarios no autenticados no podrán acceder a recursos privados.
-
-AC-004
-
-Una solicitud sin autenticación recibe una respuesta de acceso denegado.
-
-TEST-004
-
-Verifica acceso sin autenticación.
-
-Resultado:
-
-PASS
-
-
----
+`SEC-001`: acceso privado exige autenticación; `AC-004`: sin credenciales se deniega; `TEST-004`: ejecuta ese caso y registra PASS. Es solo ilustrativo.
 
 # 23. Revisión de seguridad
 
-Antes de considerar completada una funcionalidad con impacto
-de seguridad deberá verificarse:
-
-- autenticación;
-- autorización;
-- validación de entradas;
-- exposición de información;
-- secretos;
-- manejo de errores;
-- logs;
-- dependencias;
-- operaciones sensibles.
-
-La profundidad de la revisión deberá ser proporcional al riesgo.
-
----
+Antes de cerrar una feature con impacto de seguridad, revisar autenticación, autorización, entradas, exposición, secretos, errores, logs, dependencias y operaciones sensibles con profundidad proporcional al riesgo.
 
 # 24. Hallazgos de seguridad
 
-Un hallazgo relevante deberá clasificarse y documentarse.
-
-Estados recomendados:
-
-OPEN
-MITIGATED
-ACCEPTED
-NOT_APPLICABLE
-
-Un riesgo no deberá considerarse resuelto únicamente porque
-no produzca errores funcionales.
-
-La aceptación explícita de un riesgo deberá quedar documentada
-cuando corresponda.
-
-El estado de un hallazgo no deberá interpretarse por sí mismo como
-evidencia de cumplimiento.
-
-`ACCEPTED` indica que el riesgo fue aceptado explícitamente, pero no
-equivale automáticamente a que un requisito de seguridad esté satisfecho
-ni autoriza por sí mismo un resultado de validación `PASS`.
-
-La aceptación deberá documentar, cuando corresponda:
-
-- responsable de la decisión;
-- justificación;
-- alcance;
-- efecto sobre cualquier bloqueo existente.
-
-Cuando aceptar un riesgo implique una excepción a una regla superior,
-un cambio de requisito o un cambio de alcance, deberá seguirse la
-autoridad y propagación de cambios definidas por la Constitution.
-
-Un hallazgo `MITIGATED` deberá contar con evidencia suficiente para
-determinar si la mitigación resolvió el riesgo o bloqueo correspondiente.
-
----
+Documentar cada hallazgo como `OPEN`, `MITIGATED`, `ACCEPTED` o `NOT_APPLICABLE`. La ausencia de error funcional no lo resuelve. `MITIGATED` exige evidencia de que el riesgo o bloqueo quedó resuelto. `ACCEPTED` exige decisión explícita con responsable, justificación, alcance y efecto sobre bloqueos; no satisface por sí mismo SEC ni autoriza `PASS`. Una excepción superior o cambio de requisitos/alcance sigue la Constitución y sus gates. El estado del hallazgo solo nunca prueba cumplimiento.
 
 # Checklist de seguridad
 
-Antes de validar una funcionalidad deberá verificarse, cuando aplique:
-
-- [ ] Las entradas externas están validadas.
-- [ ] La autenticación está correctamente aplicada.
-- [ ] La autorización se verifica en límites confiables.
-- [ ] Se aplica mínimo privilegio.
-- [ ] No existen secretos en código o documentación versionada.
-- [ ] Los datos sensibles están identificados.
-- [ ] Los logs no contienen secretos ni exponen información sensible
-      innecesariamente o sin protección adecuada.
-- [ ] Los errores externos no revelan información interna innecesaria.
-- [ ] Las operaciones destructivas tienen controles apropiados.
-- [ ] Las integraciones externas se consideran límites no confiables.
-- [ ] Las dependencias introducidas fueron evaluadas.
-- [ ] Los controles de seguridad relevantes tienen evidencia.
-- [ ] No existen hallazgos bloqueantes sin resolver.
+Antes de validar, comprobar entradas, autenticación y autorización en límites confiables, privilegio mínimo, ausencia de secretos, protección de datos y logs, errores seguros, controles destructivos, integraciones, dependencias, evidencia de controles y ausencia de hallazgos bloqueantes abiertos.

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "events": [
+    {
+      "id": "DECISION-001",
+      "kind": "APPROVAL",
+      "actor": "Usuario responsable del proyecto",
+      "date": "2026-10-07",
+      "decision": "Aprobada SPEC-010 v0.1.0",
+      "scope": "Gates de validación final, coherencia de estados de tarea y prueba de adopción completa según SPEC-010; autoriza preparar PLAN-010",
+      "artifact": "specs/010-validation-gates/spec.md",
+      "artifact_sha256": "01531b6a624eb645eaf508b4de34ddfe46c0fac99fc0cd90a89de9f3abe27118",
+      "source": "Aprobación humana explícita recibida como 'Revisado y Aprobado' en respuesta a SPEC-010 v0.1.0"
+    },
+    {
+      "id": "DECISION-002",
+      "kind": "APPROVAL",
+      "actor": "Usuario responsable del proyecto",
+      "date": "2026-10-07",
+      "decision": "Aprobado PLAN-010 v0.1.0",
+      "scope": "Diseño técnico de gates finales, estados de tarea, compatibilidad y adopción completa según PLAN-010; autoriza preparar TASKS-010",
+      "artifact": "specs/010-validation-gates/plan.md",
+      "artifact_sha256": "678fa0f80dfc072ddb0ed25d2d89b5602290b79c035f869bfc286e2a59db2497",
+      "source": "Aprobación humana explícita recibida como 'Revisado y aprobado' en respuesta a PLAN-010 v0.1.0"
+    },
+    {
+      "id": "DECISION-003",
+      "kind": "APPROVAL",
+      "actor": "Usuario responsable del proyecto",
+      "date": "2026-10-07",
+      "decision": "Aprobadas TASKS-010 v0.1.0",
+      "scope": "Ejecución de TASK-001 a TASK-008 para gates finales, estados coherentes, adopción completa y reparación gobernada de TASKS-009; la reparación de contenido aprobado requiere decisión específica adicional",
+      "artifact": "specs/010-validation-gates/tasks.md",
+      "artifact_sha256": "eaab75bb3f8401614093ec5786e60630a591dfee0147e1dcac552f296f4e5064",
+      "source": "Aprobación humana explícita recibida como 'Revisado y aprobado' en respuesta a TASKS-010 v0.1.0"
+    }
+  ]
+}
